@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI GEO 工具评估对比 · ZERO Markets</title>
+<style>
+  :root{
+    --ink:#1c2321;
+    --paper:#f6f4ee;
+    --paper-2:#efece3;
+    --line:#d8d3c4;
+    --line-soft:#e6e2d5;
+    --accent:#b5482e;   /* terracotta-brick, used sparingly */
+    --accent-2:#2f5d50;  /* deep pine, second signal color */
+    --gold:#a6812f;
+    --support:ok-full;
+    --full:#2f5d50;
+    --full-bg:#e3ebe6;
+    --partial:#a6812f;
+    --partial-bg:#f3ecd9;
+    --none:#b5482e;
+    --none-bg:#f4e5e0;
+    --unrated-bg:#eceae2;
+    --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    --serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
+    --sans: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead{
+    border-bottom:2px solid var(--ink);
+    padding:28px 32px 18px;
+    background:var(--paper);
+    position:sticky;
+    top:0;
+    z-index:50;
+    backdrop-filter: blur(6px);
+  }
+  .masthead-inner{
+    max-width:1240px;
+    margin:0 auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .kicker{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:30px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    font-size:13px;
+    color:#6b6558;
+    margin-top:4px;
+  }
+  .meta-block{
+    text-align:right;
+    font-family:var(--mono);
+    font-size:11px;
+    color:#6b6558;
+    line-height:1.8;
+  }
+
+  /* ---------- Nav tabs ---------- */
+  .tabs{
+    max-width:1240px;
+    margin:18px auto 0;
+    display:flex;
+    gap:2px;
+    padding:0 32px;
+  }
+  .tab-btn{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:0.04em;
+    background:none;
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:10px 18px;
+    cursor:pointer;
+    color:#6b6558;
+    border-radius:6px 6px 0 0;
+    position:relative;
+    top:1px;
+  }
+  .tab-btn.active{
+    background:var(--paper);
+    color:var(--ink);
+    border-color:var(--ink);
+    border-bottom:1px solid var(--paper);
+    font-weight:600;
+  }
+
+  .view{ display:none; max-width:1240px; margin:0 auto; padding:28px 32px 80px; }
+  .view.active{ display:block; }
+
+  /* ---------- Vendor legend chips ---------- */
+  .vendor-strip{
+    display:grid;
+    grid-template-columns:1.4fr repeat(3, 1fr);
+    gap:14px;
+    margin-bottom:28px;
+  }
+  .vendor-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 18px;
+    background:var(--paper-2);
+  }
+  .vendor-card.head{
+    background:transparent;
+    border:none;
+    display:flex;
+    align-items:flex-end;
+  }
+  .vendor-card.head p{
+    font-size:13px;
+    color:#6b6558;
+    margin:0;
+  }
+  .vendor-name{
+    font-family:var(--serif);
+    font-size:18px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .vendor-url{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--accent-2);
+    text-decoration:none;
+  }
+  .vendor-tag{
+    display:inline-block;
+    margin-top:10px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:20px;
+    background:#fff;
+    border:1px solid var(--line);
+    color:#6b6558;
+  }
+
+  /* ---------- Score summary bar ---------- */
+  .score-bar{
+    display:grid;
+    grid-template-columns:1.4fr repeat(3, 1fr);
+    gap:14px;
+    margin-bottom:10px;
+  }
+  .score-cell{
+    border:1px solid var(--line-soft);
+    border-radius:10px;
+    padding:14px 16px;
+    background:#fff;
+  }
+  .score-cell .label{
+    font-family:var(--mono);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:#8a8474;
+  }
+  .score-cell .num{
+    font-family:var(--serif);
+    font-size:26px;
+    font-weight:600;
+    margin-top:2px;
+  }
+  .score-cell .bar-track{
+    height:5px;
+    background:var(--line-soft);
+    border-radius:4px;
+    margin-top:8px;
+    overflow:hidden;
+  }
+  .score-cell .bar-fill{
+    height:100%;
+    border-radius:4px;
+    background:var(--accent-2);
+    transition:width .4s ease;
+  }
+
+  /* ---------- Controls row ---------- */
+  .controls{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:26px 0 12px;
+  }
+  .controls .left{ display:flex; gap:8px; flex-wrap:wrap; }
+  .filter-chip{
+    font-family:var(--mono);
+    font-size:11px;
+    border:1px solid var(--line);
+    background:#fff;
+    padding:6px 12px;
+    border-radius:20px;
+    cursor:pointer;
+    color:#6b6558;
+  }
+  .filter-chip.active{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+  .btn{
+    font-family:var(--mono);
+    font-size:11.5px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .btn.ghost{
+    background:transparent;
+    color:var(--ink);
+  }
+  .btn.small{ padding:5px 10px; font-size:10.5px; }
+
+  /* ---------- Category blocks ---------- */
+  .category{
+    margin-bottom:6px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .category-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 18px;
+    background:var(--paper-2);
+    cursor:pointer;
+    user-select:none;
+  }
+  .category-head .title{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:15.5px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .category-head .cat-index{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    border-radius:50%;
+    width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .category-head .chevron{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#8a8474;
+    transition:transform .2s ease;
+  }
+  .category.collapsed .chevron{ transform:rotate(-90deg); }
+  .category.collapsed .cat-body{ display:none; }
+
+  .add-q-row{
+    padding:10px 18px;
+    background:#fbfaf6;
+    border-top:1px dashed var(--line);
+    display:flex;
+    gap:8px;
+  }
+  .add-q-row input{
+    flex:1;
+    font-family:var(--sans);
+    font-size:12.5px;
+    padding:7px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  thead th{
+    font-family:var(--mono);
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:#8a8474;
+    text-align:left;
+    padding:9px 12px;
+    border-bottom:1px solid var(--line);
+    background:#fbfaf6;
+  }
+  thead th.q-col{ width:30%; }
+  thead th.v-col{ width:20%; text-align:center; }
+  thead th.actions-col{ width:6%; }
+
+  tbody td{
+    padding:12px;
+    border-bottom:1px solid var(--line-soft);
+    vertical-align:top;
+    font-size:13px;
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:#fbfaf6; }
+
+  .q-text{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+  }
+  .q-priority{
+    flex-shrink:0;
+    margin-top:3px;
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--line);
+    cursor:pointer;
+  }
+  .q-priority.on{ background:var(--accent); }
+  .q-editable{
+    outline:none;
+    border-bottom:1px dashed transparent;
+    min-width:120px;
+  }
+  .q-editable:hover{ border-bottom-color:var(--line); }
+  .q-editable:focus{ border-bottom-color:var(--accent); background:#fff7ed; }
+
+  .row-del{
+    background:none;
+    border:none;
+    color:#c9c3b3;
+    font-size:15px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .row-del:hover{ color:var(--none); }
+
+  /* Status selector */
+  .status-wrap{ display:flex; flex-direction:column; gap:6px; align-items:center; }
+  .status-select{
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:600;
+    padding:6px 10px;
+    border-radius:20px;
+    border:1px solid transparent;
+    cursor:pointer;
+    text-align:center;
+    width:100%;
+    max-width:150px;
+    appearance:none;
+    -webkit-appearance:none;
+    background-position:right 8px center;
+    background-repeat:no-repeat;
+  }
+  .status-select[data-v="full"]{ background-color:var(--full-bg); color:var(--full); border-color:#c3d8cc; }
+  .status-select[data-v="partial"]{ background-color:var(--partial-bg); color:var(--partial); border-color:#e0d3a8; }
+  .status-select[data-v="none"]{ background-color:var(--none-bg); color:var(--none); border-color:#e3c2b8; }
+  .status-select[data-v="unset"]{ background-color:var(--unrated-bg); color:#9a9484; border-color:var(--line); }
+
+  .note-input{
+    width:100%;
+    max-width:150px;
+    font-size:11.5px;
+    font-family:var(--sans);
+    color:#6b6558;
+    border:none;
+    background:transparent;
+    resize:none;
+    text-align:center;
+    outline:none;
+    padding:2px 4px;
+    border-radius:4px;
+  }
+  .note-input:hover, .note-input:focus{ background:#fff; box-shadow:0 0 0 1px var(--line) inset; }
+  .note-input::placeholder{ color:#c9c3b3; }
+
+  /* ---------- Add category ---------- */
+  .add-cat-row{
+    display:flex;
+    gap:8px;
+    margin-top:16px;
+  }
+  .add-cat-row input{
+    flex:1;
+    font-family:var(--sans);
+    font-size:13px;
+    padding:10px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+
+  /* ---------- Report view ---------- */
+  .report-hero{
+    border:1px solid var(--ink);
+    border-radius:12px;
+    padding:26px 28px;
+    margin-bottom:20px;
+    background:linear-gradient(135deg, #fff 0%, var(--paper-2) 100%);
+  }
+  .report-hero h2{
+    font-family:var(--serif);
+    font-size:22px;
+    margin:0 0 6px;
+  }
+  .report-hero p{ font-size:13.5px; color:#5c5648; margin:0; max-width:760px;}
+
+  .recommend-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px;
+    margin:20px 0 30px;
+  }
+  .rec-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    background:#fff;
+  }
+  .rec-card.winner{
+    border:1.5px solid var(--accent-2);
+    background:var(--full-bg);
+  }
+  .rec-card .rank{
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--accent-2);
+    letter-spacing:0.08em;
+  }
+  .rec-card h3{
+    font-family:var(--serif);
+    font-size:16px;
+    margin:4px 0 8px;
+  }
+  .rec-card .fit{ font-size:12px; color:#5c5648; margin-bottom:10px; }
+  .rec-card ul{ margin:0; padding-left:16px; font-size:12px; color:#5c5648; }
+  .rec-card li{ margin-bottom:4px; }
+
+  .summary-table-wrap{
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
+    margin-bottom:24px;
+  }
+  .summary-table-wrap table thead th{ background:var(--ink); color:var(--paper); }
+  .cell-status{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:20px;
+  }
+  .cell-status.full{ background:var(--full-bg); color:var(--full); }
+  .cell-status.partial{ background:var(--partial-bg); color:var(--partial); }
+  .cell-status.none{ background:var(--none-bg); color:var(--none); }
+  .cell-status.unset{ background:var(--unrated-bg); color:#9a9484; }
+  .cell-note{ display:block; font-size:10.5px; color:#8a8474; margin-top:3px; max-width:180px; }
+
+  .gap-list{
+    border:1px solid var(--none);
+    border-radius:12px;
+    padding:18px 20px;
+    background:var(--none-bg);
+    margin-bottom:24px;
+  }
+  .gap-list h3{
+    font-family:var(--serif);
+    font-size:15px;
+    margin:0 0 10px;
+    color:#7a2e1c;
+  }
+  .gap-list ul{ margin:0; padding-left:18px; font-size:12.5px; color:#5c3025; }
+  .gap-list li{ margin-bottom:6px; }
+
+  footer{
+    max-width:1240px;
+    margin:0 auto;
+    padding:20px 32px 60px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:#a39d8c;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  @media print{
+    .tabs, .controls, .add-q-row, .add-cat-row, .btn{ display:none !important; }
+    .view{ display:block !important; }
+  }
+
+  @media (max-width:900px){
+    .vendor-strip, .score-bar{ grid-template-columns:1fr; }
+    .recommend-grid{ grid-template-columns:1fr; }
+    table, thead, tbody, tr{ display:block; }
+    thead{ display:none; }
+    tbody td{ display:flex; justify-content:space-between; align-items:center; border-bottom:none; padding:8px 12px; }
+    tbody td::before{ content: attr(data-label); font-family:var(--mono); font-size:10px; color:#8a8474; margin-right:10px; }
+    tbody tr{ border-bottom:1px solid var(--line-soft); padding:6px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <div class="kicker">Vendor Evaluation · Internal</div>
+      <h1>AI GEO 跟踪工具评估对比</h1>
+      <div class="subtitle">Otterly.ai · Profound · Peec.ai — ZERO Markets GEO 平台选型调研</div>
+    </div>
+    <div class="meta-block">
+      更新于 2026-07-01<br>
+      调研人：Marketing / GEO 项目组
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="compare">对比工作表</button>
+    <button class="tab-btn" data-tab="report">给领导的汇报视图</button>
+  </div>
+</div>
+
+<!-- ============ COMPARE VIEW ============ -->
+<div class="view active" id="view-compare">
+
+  <div class="vendor-strip">
+    <div class="vendor-card head"><p>三家供应商 — 逐项打分，点击状态标签可切换，备注栏可直接输入。所有修改自动保存在本机浏览器中。</p></div>
+    <div class="vendor-card">
+      <div class="vendor-name">Otterly.ai</div>
+      <a class="vendor-url" href="https://otterly.ai" target="_blank">otterly.ai</a>
+      <div><span class="vendor-tag">入门级 · $29–489/mo</span></div>
+    </div>
+    <div class="vendor-card">
+      <div class="vendor-name">Profound</div>
+      <a class="vendor-url" href="https://tryprofound.com" target="_blank">tryprofound.com</a>
+      <div><span class="vendor-tag">企业级 · $99–custom</span></div>
+    </div>
+    <div class="vendor-card">
+      <div class="vendor-name">Peec.ai</div>
+      <a class="vendor-url" href="https://peec.ai" target="_blank">peec.ai</a>
+      <div><span class="vendor-tag">中端 · €85+/mo</span></div>
+    </div>
+  </div>
+
+  <div class="score-bar" id="scoreBar"></div>
+
+  <div class="controls">
+    <div class="left">
+      <button class="filter-chip active" data-filter="all">全部问题</button>
+      <button class="filter-chip" data-filter="priority">仅重点问题 ●</button>
+      <button class="filter-chip" data-filter="unrated">仅未打分</button>
+    </div>
+    <div>
+      <button class="btn ghost small" id="exportBtn">导出JSON</button>
+      <button class="btn ghost small" id="resetBtn">重置为默认清单</button>
+    </div>
+  </div>
+
+  <div id="categoriesRoot"></div>
+
+  <div class="add-cat-row">
+    <input type="text" id="newCatInput" placeholder="+ 新增一个问题分类，例如「合规与数据安全」…">
+    <button class="btn" id="addCatBtn">添加分类</button>
+  </div>
+</div>
+
+<!-- ============ REPORT VIEW ============ -->
+<div class="view" id="view-report">
+  <div class="report-hero">
+    <h2>汇报摘要：三家 AI GEO 工具选型对比</h2>
+    <p>基于三场供应商沟通会 + 官方资料交叉核实，围绕引擎覆盖、情感分析、流量归因、数据方法论等关键维度进行评估。以下结论会随「对比工作表」的修改自动更新。</p>
+  </div>
+
+  <div class="recommend-grid" id="recommendGrid"></div>
+
+  <div class="summary-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:34%">问题</th>
+          <th style="width:22%; text-align:center;">Otterly.ai</th>
+          <th style="width:22%; text-align:center;">Profound</th>
+          <th style="width:22%; text-align:center;">Peec.ai</th>
+        </tr>
+      </thead>
+      <tbody id="reportTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="gap-list">
+    <h3>⚠ 三家共同存在的缺口（需向领导说明，非某一家的短板）</h3>
+    <ul>
+      <li><strong>流量/转化闭环归因</strong>：三家都不能把"AI提及"直接等同于"网站真实访问/转化"。Otterly 和 Peec.ai 无原生 GA4 深度打通（仅支持导出/Looker Studio）；Profound 的归因依赖 CDN 集成（Akamai/Cloudflare等），中小企业或非对应架构的网站可能无法使用。建议：无论选哪家，都需要我们自己在 GA4 做自定义渠道分组来补足这条数据链。</li>
+      <li><strong>Google AI Overviews 的点击流量</strong>：在 GA4 中天然被归类为"自然搜索"，目前没有任何工具能干净拆分出来，这是 GA4 底层设计问题，不是供应商的缺陷。</li>
+      <li><strong>情感分析的可靠性需现场验证</strong>：Otterly 官方宣称支持但第三方评测发现仪表盘中未见；Profound、Peec.ai 的情感分析在评测中相对更被认可，但仍建议三家都要求现场演示，不接受口头确认。</li>
+    </ul>
+  </div>
+
+  <footer>
+    <span>ZERO Markets · GEO 工具选型内部文档</span>
+    <span id="reportFooterDate"></span>
+  </footer>
+</div>
+
+<footer style="margin-top:-20px;">
+  <span>数据来源：三方公开资料 + 供应商沟通会记录（2026年6-7月核实）</span>
+  <span>本页所有编辑保存在浏览器本地存储中</span>
+</footer>
+
+<script>
+(function(){
+
+const STORAGE_KEY = "geo_vendor_comparison_v1";
+const VENDORS = ["otterly","profound","peec"];
+const VENDOR_LABELS = {otterly:"Otterly.ai", profound:"Profound", peec:"Peec.ai"};
+
+// ---------- Default dataset (pre-filled based on researched facts, editable) ----------
+const DEFAULT_DATA = {
+  categories: [
+    {
+      id: "cat-engine",
+      title: "A. AI引擎覆盖与多语言",
+      questions: [
+        {
+          id:"q1", text:"基础套餐包含哪些AI引擎？哪些需要加购？", priority:true,
+          status:{otterly:"partial", profound:"partial", peec:"partial"},
+          notes:{
+            otterly:"基础4个引擎(ChatGPT/Perplexity/AIO/Copilot)，Gemini和AI Mode需加购$9-149/mo",
+            profound:"Starter仅含ChatGPT，Growth起才含Perplexity+AIO，Claude尚未支持",
+            peec:"基础含3个引擎，额外引擎€30-140/mo/个"
+          }
+        },
+        {
+          id:"q2", text:"能否现场演示越南语/葡萄牙语(巴西)的真实提问追踪效果？", priority:true,
+          status:{otterly:"unset", profound:"unset", peec:"unset"},
+          notes:{otterly:"待会上验证", profound:"待会上验证", peec:"官方称支持任意地区/语言无加价"}
+        },
+        {
+          id:"q3", text:"多地区/多语言追踪是否额外收费？", priority:false,
+          status:{otterly:"partial", profound:"unset", peec:"full"},
+          notes:{otterly:"50+国家含在套餐内，但语言层面需确认", profound:"待确认", peec:"官方明确：地区/语言不额外计费，按prompt用量计费"}
+        }
+      ]
+    },
+    {
+      id:"cat-ai-visibility",
+      title:"B. AI侧可见性能力（拆解验证，不直接问KPI）",
+      questions: [
+        {
+          id:"q4", text:"能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？", priority:true,
+          status:{otterly:"full", profound:"full", peec:"full"},
+          notes:{otterly:"核心功能，CSV导出", profound:"核心功能，周环比", peec:"核心功能，7/14/30天窗口+自定义"}
+        },
+        {
+          id:"q5", text:"能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？", priority:true,
+          status:{otterly:"full", profound:"full", peec:"full"},
+          notes:{otterly:"域名排名分析", profound:"Conversation Explorer可看完整对话上下文", peec:"来源按类型分类(竞品/品牌/UGC/编辑)"}
+        },
+        {
+          id:"q6", text:"当AI引用我方内容时，能否定位到具体是哪个页面/段落被引用或改写？", priority:false,
+          status:{otterly:"partial", profound:"unset", peec:"unset"},
+          notes:{otterly:"Content Audit能看页面评分，但溯源精度需现场确认", profound:"待会上问清楚定义", peec:"待会上问清楚定义"}
+        },
+        {
+          id:"q7", text:"现场实际查一个品牌，AI提到它时语气是正面/中性/负面——能否当场演示？", priority:true,
+          status:{otterly:"none", profound:"full", peec:"full"},
+          notes:{
+            otterly:"⚠️第三方评测(generatemore.ai)实测：官方文档称有此功能，但仪表盘中未找到，必须现场验证",
+            profound:"官方默认功能，非加购项；能看具体语言模式和叙事而非仅正负标签",
+            peec:"官方确认为核心功能，正面/中性/负面三档"
+          }
+        }
+      ]
+    },
+    {
+      id:"cat-attribution",
+      title:"C. 流量归因与ROI（三家共性缺口，需重点问清限制）",
+      questions:[
+        {
+          id:"q8", text:"能否将AI提及与网站真实访问/转化数据关联？是否原生打通GA4？", priority:true,
+          status:{otterly:"none", profound:"partial", peec:"none"},
+          notes:{
+            otterly:"无原生流量归因，仅CSV导出+Looker Studio连接器",
+            profound:"Agent Analytics可做归因，但依赖CDN集成(Akamai/CloudFront/Cloudflare)，非对应架构网站可能用不了",
+            peec:"无原生GA4集成，仅Looker Studio(Advanced档以上)+CSV导出"
+          }
+        },
+        {
+          id:"q9", text:"如果不能原生归因，是否有方法论/历史案例说明提及率与真实流量的相关性？", priority:true,
+          status:{otterly:"unset", profound:"unset", peec:"unset"},
+          notes:{otterly:"待会上问", profound:"待会上问，Ramp/CRS等有公开案例可参考", peec:"待会上问"}
+        }
+      ]
+    },
+    {
+      id:"cat-methodology",
+      title:"D. 数据方法论",
+      questions:[
+        {
+          id:"q10", text:"数据是通过官方API获取还是模拟网页抓取？更新频率是多久？", priority:true,
+          status:{otterly:"partial", profound:"partial", peec:"partial"},
+          notes:{
+            otterly:"第三方评测指出为网页抓取(scraping)而非官方API，每日更新",
+            profound:"结构化prompt每日运行，具体方法论待确认",
+            peec:"官方明确为UI抓取模拟真实浏览器会话（非API采样），号称更贴近真实用户所见"
+          }
+        },
+        {
+          id:"q11", text:"同一提示词多次查询，结果是否会有波动？如何处理这种不稳定性？", priority:false,
+          status:{otterly:"unset", profound:"unset", peec:"unset"},
+          notes:{otterly:"待会上问", profound:"待会上问", peec:"待会上问"}
+        }
+      ]
+    },
+    {
+      id:"cat-competitor",
+      title:"E. 竞品与告警",
+      questions:[
+        {
+          id:"q12", text:"能否追踪长尾关键词，对比我们与竞品的Share of Voice？", priority:false,
+          status:{otterly:"full", profound:"full", peec:"full"},
+          notes:{otterly:"标配功能", profound:"标配功能，可筛选LLM/竞品/prompt", peec:"Add Brands功能，同prompt下竞品对比"}
+        },
+        {
+          id:"q13", text:"能否设置负面/风险类关键词的自动告警？", priority:true,
+          status:{otterly:"unset", profound:"unset", peec:"unset"},
+          notes:{otterly:"待会上问，对合规敏感行业(外汇)很关键", profound:"待会上问", peec:"待会上问"}
+        }
+      ]
+    },
+    {
+      id:"cat-content",
+      title:"F. 可落地优化建议",
+      questions:[
+        {
+          id:"q14", text:"内容大纲/优化建议之后，大概多久能看到引用率变化的反馈？", priority:false,
+          status:{otterly:"partial", profound:"unset", peec:"partial"},
+          notes:{
+            otterly:"有Content Audit+GEO Score+Content Brief，但评测认为优化指导深度不如成熟平台",
+            profound:"有Agents自动生成AEO内容并发布到CMS，反馈周期待确认",
+            peec:"有Actions功能(beta)，将数据转化为优先级GEO待办清单，反馈周期待确认"
+          }
+        }
+      ]
+    },
+    {
+      id:"cat-team",
+      title:"G. 团队协作与集成",
+      questions:[
+        {
+          id:"q15", text:"是否支持多用户权限、多地区workspace？", priority:false,
+          status:{otterly:"full", profound:"none", peec:"full"},
+          notes:{
+            otterly:"Agency版支持Workspace Management+无限团队成员",
+            profound:"⚠️无多账号支持，被评测点名为不适合代理/多品牌场景的短板",
+            peec:"所有套餐均含无限席位，按workspace收费而非按人头，适合多地区团队"
+          }
+        },
+        {
+          id:"q16", text:"是否有公开API/MCP？需要哪个套餐档位？", priority:false,
+          status:{otterly:"partial", profound:"partial", peec:"full"},
+          notes:{
+            otterly:"已有官方MCP server+公开API+Claude Skill，但需Standard档($189)以上",
+            profound:"API为Enterprise专属，Lite版无API",
+            peec:"所有档位含API，另有MCP端点，可接Claude/Cursor/n8n"
+          }
+        }
+      ]
+    },
+    {
+      id:"cat-trial",
+      title:"H. 试用安排",
+      questions:[
+        {
+          id:"q17", text:"试用期天数、给的是哪个套餐档位的额度、是否需要信用卡？", priority:true,
+          status:{otterly:"unset", profound:"unset", peec:"unset"},
+          notes:{otterly:"官方有7天免费试用，具体额度待确认", profound:"官方无自助试用，多为custom quote流程，需确认是否给demo账号", peec:"待会上问"}
+        },
+        {
+          id:"q18", text:"试用结束能否拿到基准报告？数据是否可导出？", priority:false,
+          status:{otterly:"unset", profound:"unset", peec:"unset"},
+          notes:{otterly:"待会上问", profound:"待会上问", peec:"待会上问"}
+        }
+      ]
+    }
+  ]
+};
+
+// ---------- State ----------
+let state = loadState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_DATA));
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+const STATUS_CYCLE = ["unset","full","partial","none"];
+const STATUS_LABEL = {unset:"未打分", full:"✅ 完全支持", partial:"⚠️ 部分支持", none:"❌ 不支持"};
+
+let currentFilter = "all";
+let idCounter = Date.now();
+
+// ---------- Render: Compare view ----------
+function renderCategories(){
+  const root = document.getElementById("categoriesRoot");
+  root.innerHTML = "";
+  state.categories.forEach((cat, catIdx)=>{
+    const catEl = document.createElement("div");
+    catEl.className = "category";
+    catEl.dataset.catId = cat.id;
+
+    const visibleQs = cat.questions.filter(q=>{
+      if(currentFilter==="priority") return q.priority;
+      if(currentFilter==="unrated") return VENDORS.some(v=>q.status[v]==="unset"||!q.status[v]);
+      return true;
+    });
+
+    catEl.innerHTML = `
+      <div class="category-head">
+        <div class="title"><span class="cat-index">${catIdx+1}</span> ${escapeHtml(cat.title)}</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">问题</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${visibleQs.map(q=>renderQuestionRow(q)).join("")}
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ 在「${escapeHtml(cat.title)}」下新增一个问题…" data-add-q="${cat.id}">
+          <button class="btn small" data-add-q-btn="${cat.id}">添加</button>
+        </div>
+      </div>
+    `;
+    root.appendChild(catEl);
+  });
+
+  attachCategoryEvents();
+  attachRowEvents();
+  renderScoreBar();
+}
+
+function renderQuestionRow(q){
+  return `
+  <tr data-q-id="${q.id}">
+    <td data-label="问题">
+      <div class="q-text">
+        <div class="q-priority ${q.priority?'on':''}" data-priority-toggle="${q.id}" title="标记为重点问题"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="${q.id}">${escapeHtml(q.text)}</div>
+      </div>
+    </td>
+    ${VENDORS.map(v=>`
+      <td data-label="${VENDOR_LABELS[v]}">
+        <div class="status-wrap">
+          <select class="status-select" data-v="${q.status[v]||'unset'}" data-status-select="${q.id}" data-vendor="${v}">
+            ${STATUS_CYCLE.map(s=>`<option value="${s}" ${((q.status[v]||'unset')===s)?'selected':''}>${STATUS_LABEL[s]}</option>`).join("")}
+          </select>
+          <textarea class="note-input" rows="1" placeholder="备注…" data-note="${q.id}" data-vendor="${v}">${escapeHtml(q.notes[v]||"")}</textarea>
+        </div>
+      </td>
+    `).join("")}
+    <td data-label=""><button class="row-del" data-del-q="${q.id}" title="删除此问题">✕</button></td>
+  </tr>`;
+}
+
+function escapeHtml(str){
+  if(!str) return "";
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function findQuestion(qId){
+  for(const cat of state.categories){
+    const q = cat.questions.find(x=>x.id===qId);
+    if(q) return {q, cat};
+  }
+  return null;
+}
+
+function attachCategoryEvents(){
+  document.querySelectorAll(".category-head").forEach(h=>{
+    h.onclick = ()=>{
+      h.parentElement.classList.toggle("collapsed");
+    };
+  });
+  document.querySelectorAll("[data-add-q-btn]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const catId = btn.dataset.addQBtn;
+      const input = document.querySelector(`[data-add-q="${catId}"]`);
+      const text = input.value.trim();
+      if(!text) return;
+      const cat = state.categories.find(c=>c.id===catId);
+      cat.questions.push({
+        id:"q"+(idCounter++),
+        text,
+        priority:false,
+        status:{otterly:"unset",profound:"unset",peec:"unset"},
+        notes:{otterly:"",profound:"",peec:""}
+      });
+      saveState();
+      renderCategories();
+    };
+  });
+  document.querySelectorAll("[data-add-q]").forEach(inp=>{
+    inp.addEventListener("keydown", e=>{
+      if(e.key==="Enter"){
+        e.preventDefault();
+        document.querySelector(`[data-add-q-btn="${inp.dataset.addQ}"]`).click();
+      }
+    });
+  });
+}
+
+function attachRowEvents(){
+  document.querySelectorAll("[data-priority-toggle]").forEach(el=>{
+    el.onclick = ()=>{
+      const found = findQuestion(el.dataset.priorityToggle);
+      if(found){
+        found.q.priority = !found.q.priority;
+        saveState();
+        renderCategories();
+      }
+    };
+  });
+  document.querySelectorAll("[data-edit-q]").forEach(el=>{
+    el.addEventListener("blur", ()=>{
+      const found = findQuestion(el.dataset.editQ);
+      if(found){
+        found.q.text = el.textContent.trim();
+        saveState();
+        renderReport();
+      }
+    });
+    el.addEventListener("keydown", e=>{
+      if(e.key==="Enter"){ e.preventDefault(); el.blur(); }
+    });
+  });
+  document.querySelectorAll("[data-status-select]").forEach(el=>{
+    el.addEventListener("change", ()=>{
+      const found = findQuestion(el.dataset.statusSelect);
+      if(found){
+        found.q.status[el.dataset.vendor] = el.value;
+        el.dataset.v = el.value;
+        saveState();
+        renderScoreBar();
+        renderReport();
+      }
+    });
+  });
+  document.querySelectorAll("[data-note]").forEach(el=>{
+    el.addEventListener("input", ()=>{
+      const found = findQuestion(el.dataset.note);
+      if(found){
+        found.q.notes[el.dataset.vendor] = el.value;
+      }
+    });
+    el.addEventListener("blur", ()=>{ saveState(); renderReport(); });
+  });
+  document.querySelectorAll("[data-del-q]").forEach(el=>{
+    el.onclick = ()=>{
+      if(!confirm("确认删除这个问题？")) return;
+      const qId = el.dataset.delQ;
+      state.categories.forEach(cat=>{
+        cat.questions = cat.questions.filter(q=>q.id!==qId);
+      });
+      saveState();
+      renderCategories();
+      renderReport();
+    };
+  });
+}
+
+function computeScore(vendor){
+  let full=0, partial=0, none=0, unset=0, total=0;
+  state.categories.forEach(cat=>{
+    cat.questions.forEach(q=>{
+      total++;
+      const s = q.status[vendor]||"unset";
+      if(s==="full") full++;
+      else if(s==="partial") partial++;
+      else if(s==="none") none++;
+      else unset++;
+    });
+  });
+  const scored = total - unset;
+  const pct = scored>0 ? Math.round(((full*1 + partial*0.5)/total)*100) : 0;
+  return {full, partial, none, unset, total, pct};
+}
+
+function renderScoreBar(){
+  const bar = document.getElementById("scoreBar");
+  const cells = VENDORS.map(v=>{
+    const s = computeScore(v);
+    return `
+    <div class="score-cell">
+      <div class="label">${VENDOR_LABELS[v]} 覆盖度</div>
+      <div class="num">${s.pct}<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${s.pct}%; background:${s.pct>=60?'var(--full)':s.pct>=35?'var(--partial)':'var(--none)'}"></div></div>
+      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
+        ✅${s.full} ⚠️${s.partial} ❌${s.none} ·未打分${s.unset}
+      </div>
+    </div>`;
+  }).join("");
+  bar.innerHTML = `<div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">总分按已打分问题计算：✅=1分 ⚠️=0.5分 ❌=0分，未打分不计入总数</p></div>${cells}`;
+}
+
+// ---------- Report view ----------
+function renderReport(){
+  // recommend cards
+  const scores = {};
+  VENDORS.forEach(v=> scores[v]=computeScore(v));
+  const ranked = [...VENDORS].sort((a,b)=>scores[b].pct - scores[a].pct);
+
+  const fitText = {
+    otterly:"入门试水 / 预算有限团队",
+    profound:"企业级 / 需要深度归因与合规认证",
+    peec:"中端多地区团队 / 需要MCP和多workspace"
+  };
+  const highlights = {};
+  VENDORS.forEach(v=>{
+    const pluses = [];
+    const minuses = [];
+    state.categories.forEach(cat=>{
+      cat.questions.forEach(q=>{
+        const s = q.status[v];
+        if(s==="full") pluses.push(q.text);
+        if(s==="none") minuses.push(q.text);
+      });
+    });
+    highlights[v] = {pluses:pluses.slice(0,3), minuses:minuses.slice(0,2)};
+  });
+
+  const grid = document.getElementById("recommendGrid");
+  grid.innerHTML = ranked.map((v,i)=>`
+    <div class="rec-card ${i===0?'winner':''}">
+      <div class="rank">${i===0?'★ 综合覆盖度最高':'排名 #'+(i+1)}</div>
+      <h3>${VENDOR_LABELS[v]}</h3>
+      <div class="fit">适合：${fitText[v]} · 覆盖度 ${scores[v].pct}%</div>
+      ${highlights[v].pluses.length?`<ul>${highlights[v].pluses.map(p=>`<li>✅ ${escapeHtml(p)}</li>`).join("")}</ul>`:""}
+      ${highlights[v].minuses.length?`<ul style="margin-top:6px;">${highlights[v].minuses.map(p=>`<li style="color:var(--none)">❌ ${escapeHtml(p)}</li>`).join("")}</ul>`:""}
+    </div>
+  `).join("");
+
+  // full summary table
+  const tbody = document.getElementById("reportTableBody");
+  let rows = "";
+  state.categories.forEach(cat=>{
+    rows += `<tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">${escapeHtml(cat.title)}</td></tr>`;
+    cat.questions.forEach(q=>{
+      rows += `<tr>
+        <td>${q.priority?'● ':''}${escapeHtml(q.text)}</td>
+        ${VENDORS.map(v=>{
+          const s = q.status[v]||"unset";
+          const note = q.notes[v]||"";
+          return `<td style="text-align:center;">
+            <span class="cell-status ${s}">${STATUS_LABEL[s]}</span>
+            ${note?`<span class="cell-note">${escapeHtml(note)}</span>`:""}
+          </td>`;
+        }).join("")}
+      </tr>`;
+    });
+  });
+  tbody.innerHTML = rows;
+
+  document.getElementById("reportFooterDate").textContent = "生成于 " + new Date().toLocaleString("zh-CN");
+}
+
+// ---------- Tabs ----------
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("view-"+btn.dataset.tab).classList.add("active");
+    if(btn.dataset.tab==="report") renderReport();
+  };
+});
+
+// ---------- Filters ----------
+document.querySelectorAll(".filter-chip").forEach(chip=>{
+  chip.onclick = ()=>{
+    document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    currentFilter = chip.dataset.filter;
+    renderCategories();
+  };
+});
+
+// ---------- Add category ----------
+document.getElementById("addCatBtn").onclick = ()=>{
+  const input = document.getElementById("newCatInput");
+  const title = input.value.trim();
+  if(!title) return;
+  state.categories.push({
+    id:"cat"+(idCounter++),
+    title,
+    questions:[]
+  });
+  input.value="";
+  saveState();
+  renderCategories();
+};
+document.getElementById("newCatInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ e.preventDefault(); document.getElementById("addCatBtn").click(); }
+});
+
+// ---------- Export / Reset ----------
+document.getElementById("exportBtn").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "geo_vendor_comparison.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+document.getElementById("resetBtn").onclick = ()=>{
+  if(!confirm("确认重置为默认清单？这会覆盖你所有的修改。")) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveState();
+  renderCategories();
+  renderReport();
+};
+
+// ---------- Init ----------
+renderCategories();
+renderReport();
+
+})();
+</script>
+</body>
+</html>
