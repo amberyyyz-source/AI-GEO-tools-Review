@@ -161,26 +161,26 @@
   <div class="score-bar" id="scoreBar"><div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Score is calculated from all questions: ✅=1pt ⚠️=0.5pt ❌=0pt, unrated counts as 0</p></div>
     <div class="score-cell">
       <div class="label">Otterly.ai Coverage</div>
-      <div class="num">26<span style="font-size:14px;color:#8a8474;">%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:26%; background:var(--none)"></div></div>
+      <div class="num">24<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:24%; background:var(--none)"></div></div>
       <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅4 ⚠️2 ❌1 ·Unrated12
+        ✅4 ⚠️1 ❌0 ·Unrated14
       </div>
     </div>
     <div class="score-cell">
       <div class="label">Profound Coverage</div>
-      <div class="num">24<span style="font-size:14px;color:#8a8474;">%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:24%; background:var(--none)"></div></div>
+      <div class="num">18<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:18%; background:var(--none)"></div></div>
       <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅3 ⚠️3 ❌1 ·Unrated12
+        ✅3 ⚠️1 ❌1 ·Unrated14
       </div>
     </div>
     <div class="score-cell">
       <div class="label">Peec.ai Coverage</div>
-      <div class="num">29<span style="font-size:14px;color:#8a8474;">%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:29%; background:var(--none)"></div></div>
+      <div class="num">26<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:26%; background:var(--none)"></div></div>
       <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅5 ⚠️1 ❌1 ·Unrated12
+        ✅5 ⚠️0 ❌0 ·Unrated14
       </div>
     </div></div>
 
@@ -570,7 +570,7 @@
     
       <td data-label="Otterly.ai">
         <div class="status-wrap">
-          <select class="status-select" data-v="none" data-status-select="q8" data-vendor="otterly">
+          <select class="status-select" data-v="unset" data-status-select="q8" data-vendor="otterly">
             <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none" selected="">❌ No Support</option>
           </select>
           <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q8" data-vendor="otterly">No native traffic attribution, only CSV export + Looker Studio connector</textarea>
@@ -579,7 +579,7 @@
     
       <td data-label="Profound">
         <div class="status-wrap">
-          <select class="status-select" data-v="partial" data-status-select="q8" data-vendor="profound">
+          <select class="status-select" data-v="unset" data-status-select="q8" data-vendor="profound">
             <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
           </select>
           <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q8" data-vendor="profound">Agent Analytics can do attribution, but depends on CDN integration (Akamai/CloudFront/Cloudflare); may not work for sites without matching architecture</textarea>
@@ -588,7 +588,7 @@
     
       <td data-label="Peec.ai">
         <div class="status-wrap">
-          <select class="status-select" data-v="none" data-status-select="q8" data-vendor="peec">
+          <select class="status-select" data-v="unset" data-status-select="q8" data-vendor="peec">
             <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none" selected="">❌ No Support</option>
           </select>
           <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q8" data-vendor="peec">No native GA4 integration, only Looker Studio (Advanced tier and above) + CSV export</textarea>
@@ -669,7 +669,7 @@
     
       <td data-label="Otterly.ai">
         <div class="status-wrap">
-          <select class="status-select" data-v="partial" data-status-select="q10" data-vendor="otterly">
+          <select class="status-select" data-v="unset" data-status-select="q10" data-vendor="otterly">
             <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
           </select>
           <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q10" data-vendor="otterly">Third-party review indicates it's web scraping rather than an official API; updated daily</textarea>
@@ -678,7 +678,7 @@
     
       <td data-label="Profound">
         <div class="status-wrap">
-          <select class="status-select" data-v="partial" data-status-select="q10" data-vendor="profound">
+          <select class="status-select" data-v="unset" data-status-select="q10" data-vendor="profound">
             <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
           </select>
           <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q10" data-vendor="profound">Structured prompts run daily; specific methodology to be confirmed</textarea>
@@ -687,7 +687,7 @@
     
       <td data-label="Peec.ai">
         <div class="status-wrap">
-          <select class="status-select" data-v="partial" data-status-select="q10" data-vendor="peec">
+          <select class="status-select" data-v="unset" data-status-select="q10" data-vendor="peec">
             <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
           </select>
           <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q10" data-vendor="peec">Officially confirmed as UI scraping that simulates real browser sessions (not API sampling), claimed to more closely match what real users see</textarea>
@@ -1117,23 +1117,23 @@
     <div class="rec-card winner">
       <div class="rank">★ Highest Overall Coverage</div>
       <h3>Peec.ai</h3>
-      <div class="fit">Best for: Mid-tier multi-region teams / needing MCP and multiple workspaces · Coverage 29%</div>
+      <div class="fit">Best for: Mid-tier multi-region teams / needing MCP and multiple workspaces · Coverage 26%</div>
       <ul><li>✅ Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</li><li>✅ Can you see exactly which domain/article was cited by AI, along with the full citation context?</li><li>✅ Can you track long-tail keywords and compare our Share of Voice against competitors?</li></ul>
-      <ul style="margin-top:6px;"><li style="color:var(--none)">❌ Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</li></ul>
+      
     </div>
   
     <div class="rec-card ">
       <div class="rank">Rank #2</div>
       <h3>Otterly.ai</h3>
-      <div class="fit">Best for: Entry-level trial / budget-constrained teams · Coverage 26%</div>
+      <div class="fit">Best for: Entry-level trial / budget-constrained teams · Coverage 24%</div>
       <ul><li>✅ Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</li><li>✅ Can you see exactly which domain/article was cited by AI, along with the full citation context?</li><li>✅ Can you track long-tail keywords and compare our Share of Voice against competitors?</li></ul>
-      <ul style="margin-top:6px;"><li style="color:var(--none)">❌ Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</li></ul>
+      
     </div>
   
     <div class="rec-card ">
       <div class="rank">Rank #3</div>
       <h3>Profound</h3>
-      <div class="fit">Best for: Enterprise / needing deep attribution and compliance certification · Coverage 24%</div>
+      <div class="fit">Best for: Enterprise / needing deep attribution and compliance certification · Coverage 18%</div>
       <ul><li>✅ Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</li><li>✅ Can you see exactly which domain/article was cited by AI, along with the full citation context?</li><li>✅ Can you track long-tail keywords and compare our Share of Voice against competitors?</li></ul>
       <ul style="margin-top:6px;"><li style="color:var(--none)">❌ Does it support multi-user permissions and multi-region workspaces?</li></ul>
     </div>
@@ -1248,50 +1248,50 @@
       </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">C. Traffic Attribution &amp; ROI</td></tr><tr>
         <td>● Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</td>
         <td style="text-align:center;">
-            <span class="cell-status none">❌ No Support</span>
-            <span class="cell-note">No native traffic attribution, only CSV export + Looker Studio connector</span>
+            <span class="cell-status unset">Unrated</span>
+            
           </td><td style="text-align:center;">
-            <span class="cell-status partial">⚠️ Partial Support</span>
-            <span class="cell-note">Agent Analytics can do attribution, but depends on CDN integration (Akamai/CloudFront/Cloudflare); may not work for sites without matching architecture</span>
+            <span class="cell-status unset">Unrated</span>
+            
           </td><td style="text-align:center;">
-            <span class="cell-status none">❌ No Support</span>
-            <span class="cell-note">No native GA4 integration, only Looker Studio (Advanced tier and above) + CSV export</span>
+            <span class="cell-status unset">Unrated</span>
+            
           </td>
       </tr><tr>
         <td>● If native attribution isn't available, is there a methodology/case study showing correlation between mention rate and actual traffic?</td>
         <td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td><td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call; Ramp/CRS etc. have public case studies for reference</span>
+            
           </td><td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td>
       </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">D. Data Methodology</td></tr><tr>
         <td>● Is data collected via official APIs or simulated web scraping? How often is it updated?</td>
         <td style="text-align:center;">
-            <span class="cell-status partial">⚠️ Partial Support</span>
-            <span class="cell-note">Third-party review indicates it's web scraping rather than an official API; updated daily</span>
+            <span class="cell-status unset">Unrated</span>
+            
           </td><td style="text-align:center;">
-            <span class="cell-status partial">⚠️ Partial Support</span>
-            <span class="cell-note">Structured prompts run daily; specific methodology to be confirmed</span>
+            <span class="cell-status unset">Unrated</span>
+            
           </td><td style="text-align:center;">
-            <span class="cell-status partial">⚠️ Partial Support</span>
-            <span class="cell-note">Officially confirmed as UI scraping that simulates real browser sessions (not API sampling), claimed to more closely match what real users see</span>
+            <span class="cell-status unset">Unrated</span>
+            
           </td>
       </tr><tr>
         <td>Does querying the same prompt multiple times produce fluctuating results? How is this instability handled?</td>
         <td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td><td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td><td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td>
       </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">E. Competitors &amp; Alerts</td></tr><tr>
         <td>Can you track long-tail keywords and compare our Share of Voice against competitors?</td>
@@ -1363,7 +1363,7 @@
             
           </td><td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td>
       </tr><tr>
         <td>After the trial ends, can you get a benchmark report? Is the data exportable?</td>
@@ -1375,7 +1375,7 @@
             
           </td><td style="text-align:center;">
             <span class="cell-status unset">Unrated</span>
-            <span class="cell-note">Will ask during the call</span>
+            
           </td>
       </tr></tbody>
     </table>
@@ -1392,7 +1392,7 @@
 
   <footer>
     <span>ZERO Markets · GEO Tool Internal Document</span>
-    <span id="reportFooterDate">Generated on 7/2/2026, 12:24:25 AM</span>
+    <span id="reportFooterDate">Generated on 7/2/2026, 12:27:41 AM</span>
   </footer>
 </div>
 
