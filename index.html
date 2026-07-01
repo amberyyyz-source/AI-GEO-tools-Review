@@ -1,7 +1,14 @@
-<html lang="zh-CN"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI GEO 工具评估对比 · ZERO Markets</title>
+<title>AI GEO Tool Evaluation & Comparison · ZERO Markets</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
 <style>
   :root{
     --ink:#1c2321;
@@ -9,8 +16,8 @@
     --paper-2:#efece3;
     --line:#d8d3c4;
     --line-soft:#e6e2d5;
-    --accent:#b5482e;   /* terracotta-brick, used sparingly */
-    --accent-2:#2f5d50;  /* deep pine, second signal color */
+    --accent:#b5482e;
+    --accent-2:#2f5d50;
     --gold:#a6812f;
     --support:ok-full;
     --full:#2f5d50;
@@ -21,8 +28,8 @@
     --none-bg:#f4e5e0;
     --unrated-bg:#eceae2;
     --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
-    --serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
-    --sans: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+    --serif: 'Source Serif 4', 'Georgia', serif;
+    --sans: 'Inter', '-apple-system', sans-serif;
   }
 
   *{box-sizing:border-box;}
@@ -35,7 +42,6 @@
     -webkit-font-smoothing:antialiased;
   }
 
-  /* ---------- Masthead ---------- */
   .masthead{
     border-bottom:2px solid var(--ink);
     padding:28px 32px 18px;
@@ -82,7 +88,6 @@
     line-height:1.8;
   }
 
-  /* ---------- Nav tabs ---------- */
   .tabs{
     max-width:1240px;
     margin:18px auto 0;
@@ -115,7 +120,6 @@
   .view{ display:none; max-width:1240px; margin:0 auto; padding:28px 32px 80px; }
   .view.active{ display:block; }
 
-  /* ---------- Vendor legend chips ---------- */
   .vendor-strip{
     display:grid;
     grid-template-columns:1.4fr repeat(3, 1fr);
@@ -163,7 +167,6 @@
     color:#6b6558;
   }
 
-  /* ---------- Score summary bar ---------- */
   .score-bar{
     display:grid;
     grid-template-columns:1.4fr repeat(3, 1fr);
@@ -203,7 +206,6 @@
     transition:width .4s ease;
   }
 
-  /* ---------- Controls row ---------- */
   .controls{
     display:flex;
     justify-content:space-between;
@@ -244,7 +246,6 @@
   }
   .btn.small{ padding:5px 10px; font-size:10.5px; }
 
-  /* ---------- Category blocks ---------- */
   .category{
     margin-bottom:6px;
     border:1px solid var(--line);
@@ -364,7 +365,6 @@
   }
   .row-del:hover{ color:var(--none); }
 
-  /* Status selector */
   .status-wrap{ display:flex; flex-direction:column; gap:6px; align-items:center; }
   .status-select{
     font-family:var(--sans);
@@ -404,7 +404,6 @@
   .note-input:hover, .note-input:focus{ background:#fff; box-shadow:0 0 0 1px var(--line) inset; }
   .note-input::placeholder{ color:#c9c3b3; }
 
-  /* ---------- Add category ---------- */
   .add-cat-row{
     display:flex;
     gap:8px;
@@ -419,7 +418,6 @@
     border-radius:8px;
   }
 
-  /* ---------- Report view ---------- */
   .report-hero{
     border:1px solid var(--ink);
     border-radius:12px;
@@ -527,1433 +525,348 @@
     tbody td::before{ content: attr(data-label); font-family:var(--mono); font-size:10px; color:#8a8474; margin-right:10px; }
     tbody tr{ border-bottom:1px solid var(--line-soft); padding:6px 0; }
   }
-</style>
-<style type="text/css">[data-sonner-toaster][dir=ltr],html[dir=ltr]{--toast-icon-margin-start:-3px;--toast-icon-margin-end:4px;--toast-svg-margin-start:-1px;--toast-svg-margin-end:0px;--toast-button-margin-start:auto;--toast-button-margin-end:0;--toast-close-button-start:0;--toast-close-button-end:unset;--toast-close-button-transform:translate(-35%, -35%)}[data-sonner-toaster][dir=rtl],html[dir=rtl]{--toast-icon-margin-start:4px;--toast-icon-margin-end:-3px;--toast-svg-margin-start:0px;--toast-svg-margin-end:-1px;--toast-button-margin-start:0;--toast-button-margin-end:auto;--toast-close-button-start:unset;--toast-close-button-end:0;--toast-close-button-transform:translate(35%, -35%)}[data-sonner-toaster]{position:fixed;width:var(--width);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;--gray1:hsl(0, 0%, 99%);--gray2:hsl(0, 0%, 97.3%);--gray3:hsl(0, 0%, 95.1%);--gray4:hsl(0, 0%, 93%);--gray5:hsl(0, 0%, 90.9%);--gray6:hsl(0, 0%, 88.7%);--gray7:hsl(0, 0%, 85.8%);--gray8:hsl(0, 0%, 78%);--gray9:hsl(0, 0%, 56.1%);--gray10:hsl(0, 0%, 52.3%);--gray11:hsl(0, 0%, 43.5%);--gray12:hsl(0, 0%, 9%);--border-radius:8px;box-sizing:border-box;padding:0;margin:0;list-style:none;outline:0;z-index:999999999;transition:transform .4s ease}@media (hover:none) and (pointer:coarse){[data-sonner-toaster][data-lifted=true]{transform:none}}[data-sonner-toaster][data-x-position=right]{right:var(--offset-right)}[data-sonner-toaster][data-x-position=left]{left:var(--offset-left)}[data-sonner-toaster][data-x-position=center]{left:50%;transform:translateX(-50%)}[data-sonner-toaster][data-y-position=top]{top:var(--offset-top)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--offset-bottom)}[data-sonner-toast]{--y:translateY(100%);--lift-amount:calc(var(--lift) * var(--gap));z-index:var(--z-index);position:absolute;opacity:0;transform:var(--y);touch-action:none;transition:transform .4s,opacity .4s,height .4s,box-shadow .2s;box-sizing:border-box;outline:0;overflow-wrap:anywhere}[data-sonner-toast][data-styled=true]{padding:16px;background:var(--normal-bg);border:1px solid var(--normal-border);color:var(--normal-text);border-radius:var(--border-radius);box-shadow:0 4px 12px rgba(0,0,0,.1);width:var(--width);font-size:13px;display:flex;align-items:center;gap:6px}[data-sonner-toast]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-y-position=top]{top:0;--y:translateY(-100%);--lift:1;--lift-amount:calc(1 * var(--gap))}[data-sonner-toast][data-y-position=bottom]{bottom:0;--y:translateY(100%);--lift:-1;--lift-amount:calc(var(--lift) * var(--gap))}[data-sonner-toast][data-styled=true] [data-description]{font-weight:400;line-height:1.4;color:#3f3f3f}[data-rich-colors=true][data-sonner-toast][data-styled=true] [data-description]{color:inherit}[data-sonner-toaster][data-sonner-theme=dark] [data-description]{color:#e8e8e8}[data-sonner-toast][data-styled=true] [data-title]{font-weight:500;line-height:1.5;color:inherit}[data-sonner-toast][data-styled=true] [data-icon]{display:flex;height:16px;width:16px;position:relative;justify-content:flex-start;align-items:center;flex-shrink:0;margin-left:var(--toast-icon-margin-start);margin-right:var(--toast-icon-margin-end)}[data-sonner-toast][data-promise=true] [data-icon]>svg{opacity:0;transform:scale(.8);transform-origin:center;animation:sonner-fade-in .3s ease forwards}[data-sonner-toast][data-styled=true] [data-icon]>*{flex-shrink:0}[data-sonner-toast][data-styled=true] [data-icon] svg{margin-left:var(--toast-svg-margin-start);margin-right:var(--toast-svg-margin-end)}[data-sonner-toast][data-styled=true] [data-content]{display:flex;flex-direction:column;gap:2px}[data-sonner-toast][data-styled=true] [data-button]{border-radius:4px;padding-left:8px;padding-right:8px;height:24px;font-size:12px;color:var(--normal-bg);background:var(--normal-text);margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end);border:none;font-weight:500;cursor:pointer;outline:0;display:flex;align-items:center;flex-shrink:0;transition:opacity .4s,box-shadow .2s}[data-sonner-toast][data-styled=true] [data-button]:focus-visible{box-shadow:0 0 0 2px rgba(0,0,0,.4)}[data-sonner-toast][data-styled=true] [data-button]:first-of-type{margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end)}[data-sonner-toast][data-styled=true] [data-cancel]{color:var(--normal-text);background:rgba(0,0,0,.08)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-styled=true] [data-cancel]{background:rgba(255,255,255,.3)}[data-sonner-toast][data-styled=true] [data-close-button]{position:absolute;left:var(--toast-close-button-start);right:var(--toast-close-button-end);top:0;height:20px;width:20px;display:flex;justify-content:center;align-items:center;padding:0;color:var(--gray12);background:var(--normal-bg);border:1px solid var(--gray4);transform:var(--toast-close-button-transform);border-radius:50%;cursor:pointer;z-index:1;transition:opacity .1s,background .2s,border-color .2s}[data-sonner-toast][data-styled=true] [data-close-button]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-styled=true] [data-disabled=true]{cursor:not-allowed}[data-sonner-toast][data-styled=true]:hover [data-close-button]:hover{background:var(--gray2);border-color:var(--gray5)}[data-sonner-toast][data-swiping=true]::before{content:'';position:absolute;left:-100%;right:-100%;height:100%;z-index:-1}[data-sonner-toast][data-y-position=top][data-swiping=true]::before{bottom:50%;transform:scaleY(3) translateY(50%)}[data-sonner-toast][data-y-position=bottom][data-swiping=true]::before{top:50%;transform:scaleY(3) translateY(-50%)}[data-sonner-toast][data-swiping=false][data-removed=true]::before{content:'';position:absolute;inset:0;transform:scaleY(2)}[data-sonner-toast][data-expanded=true]::after{content:'';position:absolute;left:0;height:calc(var(--gap) + 1px);bottom:100%;width:100%}[data-sonner-toast][data-mounted=true]{--y:translateY(0);opacity:1}[data-sonner-toast][data-expanded=false][data-front=false]{--scale:var(--toasts-before) * 0.05 + 1;--y:translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));height:var(--front-toast-height)}[data-sonner-toast]>*{transition:opacity .4s}[data-sonner-toast][data-x-position=right]{right:0}[data-sonner-toast][data-x-position=left]{left:0}[data-sonner-toast][data-expanded=false][data-front=false][data-styled=true]>*{opacity:0}[data-sonner-toast][data-visible=false]{opacity:0;pointer-events:none}[data-sonner-toast][data-mounted=true][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset)));height:var(--initial-height)}[data-sonner-toast][data-removed=true][data-front=true][data-swipe-out=false]{--y:translateY(calc(var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=false]{--y:translateY(40%);opacity:0;transition:transform .5s,opacity .2s}[data-sonner-toast][data-removed=true][data-front=false]::before{height:calc(var(--initial-height) + 20%)}[data-sonner-toast][data-swiping=true]{transform:var(--y) translateY(var(--swipe-amount-y,0)) translateX(var(--swipe-amount-x,0));transition:none}[data-sonner-toast][data-swiped=true]{user-select:none}[data-sonner-toast][data-swipe-out=true][data-y-position=bottom],[data-sonner-toast][data-swipe-out=true][data-y-position=top]{animation-duration:.2s;animation-timing-function:ease-out;animation-fill-mode:forwards}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=left]{animation-name:swipe-out-left}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=right]{animation-name:swipe-out-right}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=up]{animation-name:swipe-out-up}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=down]{animation-name:swipe-out-down}@keyframes swipe-out-left{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) - 100%));opacity:0}}@keyframes swipe-out-right{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) + 100%));opacity:0}}@keyframes swipe-out-up{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) - 100%));opacity:0}}@keyframes swipe-out-down{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) + 100%));opacity:0}}@media (max-width:600px){[data-sonner-toaster]{position:fixed;right:var(--mobile-offset-right);left:var(--mobile-offset-left);width:100%}[data-sonner-toaster][dir=rtl]{left:calc(var(--mobile-offset-left) * -1)}[data-sonner-toaster] [data-sonner-toast]{left:0;right:0;width:calc(100% - var(--mobile-offset-left) * 2)}[data-sonner-toaster][data-x-position=left]{left:var(--mobile-offset-left)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--mobile-offset-bottom)}[data-sonner-toaster][data-y-position=top]{top:var(--mobile-offset-top)}[data-sonner-toaster][data-x-position=center]{left:var(--mobile-offset-left);right:var(--mobile-offset-right);transform:none}}[data-sonner-toaster][data-sonner-theme=light]{--normal-bg:#fff;--normal-border:var(--gray4);--normal-text:var(--gray12);--success-bg:hsl(143, 85%, 96%);--success-border:hsl(145, 92%, 87%);--success-text:hsl(140, 100%, 27%);--info-bg:hsl(208, 100%, 97%);--info-border:hsl(221, 91%, 93%);--info-text:hsl(210, 92%, 45%);--warning-bg:hsl(49, 100%, 97%);--warning-border:hsl(49, 91%, 84%);--warning-text:hsl(31, 92%, 45%);--error-bg:hsl(359, 100%, 97%);--error-border:hsl(359, 100%, 94%);--error-text:hsl(360, 100%, 45%)}[data-sonner-toaster][data-sonner-theme=light] [data-sonner-toast][data-invert=true]{--normal-bg:#000;--normal-border:hsl(0, 0%, 20%);--normal-text:var(--gray1)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-invert=true]{--normal-bg:#fff;--normal-border:var(--gray3);--normal-text:var(--gray12)}[data-sonner-toaster][data-sonner-theme=dark]{--normal-bg:#000;--normal-bg-hover:hsl(0, 0%, 12%);--normal-border:hsl(0, 0%, 20%);--normal-border-hover:hsl(0, 0%, 25%);--normal-text:var(--gray1);--success-bg:hsl(150, 100%, 6%);--success-border:hsl(147, 100%, 12%);--success-text:hsl(150, 86%, 65%);--info-bg:hsl(215, 100%, 6%);--info-border:hsl(223, 43%, 17%);--info-text:hsl(216, 87%, 65%);--warning-bg:hsl(64, 100%, 6%);--warning-border:hsl(60, 100%, 9%);--warning-text:hsl(46, 87%, 65%);--error-bg:hsl(358, 76%, 10%);--error-border:hsl(357, 89%, 16%);--error-text:hsl(358, 100%, 81%)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]{background:var(--normal-bg);border-color:var(--normal-border);color:var(--normal-text)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]:hover{background:var(--normal-bg-hover);border-color:var(--normal-border-hover)}[data-rich-colors=true][data-sonner-toast][data-type=success]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=success] [data-close-button]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=info]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=info] [data-close-button]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning] [data-close-button]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=error]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}[data-rich-colors=true][data-sonner-toast][data-type=error] [data-close-button]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}.sonner-loading-wrapper{--size:16px;height:var(--size);width:var(--size);position:absolute;inset:0;z-index:10}.sonner-loading-wrapper[data-visible=false]{transform-origin:center;animation:sonner-fade-out .2s ease forwards}.sonner-spinner{position:relative;top:50%;left:50%;height:var(--size);width:var(--size)}.sonner-loading-bar{animation:sonner-spin 1.2s linear infinite;background:var(--gray11);border-radius:6px;height:8%;left:-10%;position:absolute;top:-3.9%;width:24%}.sonner-loading-bar:first-child{animation-delay:-1.2s;transform:rotate(.0001deg) translate(146%)}.sonner-loading-bar:nth-child(2){animation-delay:-1.1s;transform:rotate(30deg) translate(146%)}.sonner-loading-bar:nth-child(3){animation-delay:-1s;transform:rotate(60deg) translate(146%)}.sonner-loading-bar:nth-child(4){animation-delay:-.9s;transform:rotate(90deg) translate(146%)}.sonner-loading-bar:nth-child(5){animation-delay:-.8s;transform:rotate(120deg) translate(146%)}.sonner-loading-bar:nth-child(6){animation-delay:-.7s;transform:rotate(150deg) translate(146%)}.sonner-loading-bar:nth-child(7){animation-delay:-.6s;transform:rotate(180deg) translate(146%)}.sonner-loading-bar:nth-child(8){animation-delay:-.5s;transform:rotate(210deg) translate(146%)}.sonner-loading-bar:nth-child(9){animation-delay:-.4s;transform:rotate(240deg) translate(146%)}.sonner-loading-bar:nth-child(10){animation-delay:-.3s;transform:rotate(270deg) translate(146%)}.sonner-loading-bar:nth-child(11){animation-delay:-.2s;transform:rotate(300deg) translate(146%)}.sonner-loading-bar:nth-child(12){animation-delay:-.1s;transform:rotate(330deg) translate(146%)}@keyframes sonner-fade-in{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}@keyframes sonner-fade-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}@keyframes sonner-spin{0%{opacity:1}100%{opacity:.15}}@media (prefers-reduced-motion){.sonner-loading-bar,[data-sonner-toast],[data-sonner-toast]>*{transition:none!important;animation:none!important}}.sonner-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .2s,transform .2s}.sonner-loader[data-visible=false]{opacity:0;transform:scale(.8) translate(-50%,-50%)}</style><style type="text/css">[data-sonner-toaster][dir=ltr],html[dir=ltr]{--toast-icon-margin-start:-3px;--toast-icon-margin-end:4px;--toast-svg-margin-start:-1px;--toast-svg-margin-end:0px;--toast-button-margin-start:auto;--toast-button-margin-end:0;--toast-close-button-start:0;--toast-close-button-end:unset;--toast-close-button-transform:translate(-35%, -35%)}[data-sonner-toaster][dir=rtl],html[dir=rtl]{--toast-icon-margin-start:4px;--toast-icon-margin-end:-3px;--toast-svg-margin-start:0px;--toast-svg-margin-end:-1px;--toast-button-margin-start:0;--toast-button-margin-end:auto;--toast-close-button-start:unset;--toast-close-button-end:0;--toast-close-button-transform:translate(35%, -35%)}[data-sonner-toaster]{position:fixed;width:var(--width);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;--gray1:hsl(0, 0%, 99%);--gray2:hsl(0, 0%, 97.3%);--gray3:hsl(0, 0%, 95.1%);--gray4:hsl(0, 0%, 93%);--gray5:hsl(0, 0%, 90.9%);--gray6:hsl(0, 0%, 88.7%);--gray7:hsl(0, 0%, 85.8%);--gray8:hsl(0, 0%, 78%);--gray9:hsl(0, 0%, 56.1%);--gray10:hsl(0, 0%, 52.3%);--gray11:hsl(0, 0%, 43.5%);--gray12:hsl(0, 0%, 9%);--border-radius:8px;box-sizing:border-box;padding:0;margin:0;list-style:none;outline:0;z-index:999999999;transition:transform .4s ease}@media (hover:none) and (pointer:coarse){[data-sonner-toaster][data-lifted=true]{transform:none}}[data-sonner-toaster][data-x-position=right]{right:var(--offset-right)}[data-sonner-toaster][data-x-position=left]{left:var(--offset-left)}[data-sonner-toaster][data-x-position=center]{left:50%;transform:translateX(-50%)}[data-sonner-toaster][data-y-position=top]{top:var(--offset-top)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--offset-bottom)}[data-sonner-toast]{--y:translateY(100%);--lift-amount:calc(var(--lift) * var(--gap));z-index:var(--z-index);position:absolute;opacity:0;transform:var(--y);touch-action:none;transition:transform .4s,opacity .4s,height .4s,box-shadow .2s;box-sizing:border-box;outline:0;overflow-wrap:anywhere}[data-sonner-toast][data-styled=true]{padding:16px;background:var(--normal-bg);border:1px solid var(--normal-border);color:var(--normal-text);border-radius:var(--border-radius);box-shadow:0 4px 12px rgba(0,0,0,.1);width:var(--width);font-size:13px;display:flex;align-items:center;gap:6px}[data-sonner-toast]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-y-position=top]{top:0;--y:translateY(-100%);--lift:1;--lift-amount:calc(1 * var(--gap))}[data-sonner-toast][data-y-position=bottom]{bottom:0;--y:translateY(100%);--lift:-1;--lift-amount:calc(var(--lift) * var(--gap))}[data-sonner-toast][data-styled=true] [data-description]{font-weight:400;line-height:1.4;color:#3f3f3f}[data-rich-colors=true][data-sonner-toast][data-styled=true] [data-description]{color:inherit}[data-sonner-toaster][data-sonner-theme=dark] [data-description]{color:#e8e8e8}[data-sonner-toast][data-styled=true] [data-title]{font-weight:500;line-height:1.5;color:inherit}[data-sonner-toast][data-styled=true] [data-icon]{display:flex;height:16px;width:16px;position:relative;justify-content:flex-start;align-items:center;flex-shrink:0;margin-left:var(--toast-icon-margin-start);margin-right:var(--toast-icon-margin-end)}[data-sonner-toast][data-promise=true] [data-icon]>svg{opacity:0;transform:scale(.8);transform-origin:center;animation:sonner-fade-in .3s ease forwards}[data-sonner-toast][data-styled=true] [data-icon]>*{flex-shrink:0}[data-sonner-toast][data-styled=true] [data-icon] svg{margin-left:var(--toast-svg-margin-start);margin-right:var(--toast-svg-margin-end)}[data-sonner-toast][data-styled=true] [data-content]{display:flex;flex-direction:column;gap:2px}[data-sonner-toast][data-styled=true] [data-button]{border-radius:4px;padding-left:8px;padding-right:8px;height:24px;font-size:12px;color:var(--normal-bg);background:var(--normal-text);margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end);border:none;font-weight:500;cursor:pointer;outline:0;display:flex;align-items:center;flex-shrink:0;transition:opacity .4s,box-shadow .2s}[data-sonner-toast][data-styled=true] [data-button]:focus-visible{box-shadow:0 0 0 2px rgba(0,0,0,.4)}[data-sonner-toast][data-styled=true] [data-button]:first-of-type{margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end)}[data-sonner-toast][data-styled=true] [data-cancel]{color:var(--normal-text);background:rgba(0,0,0,.08)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-styled=true] [data-cancel]{background:rgba(255,255,255,.3)}[data-sonner-toast][data-styled=true] [data-close-button]{position:absolute;left:var(--toast-close-button-start);right:var(--toast-close-button-end);top:0;height:20px;width:20px;display:flex;justify-content:center;align-items:center;padding:0;color:var(--gray12);background:var(--normal-bg);border:1px solid var(--gray4);transform:var(--toast-close-button-transform);border-radius:50%;cursor:pointer;z-index:1;transition:opacity .1s,background .2s,border-color .2s}[data-sonner-toast][data-styled=true] [data-close-button]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-styled=true] [data-disabled=true]{cursor:not-allowed}[data-sonner-toast][data-styled=true]:hover [data-close-button]:hover{background:var(--gray2);border-color:var(--gray5)}[data-sonner-toast][data-swiping=true]::before{content:'';position:absolute;left:-100%;right:-100%;height:100%;z-index:-1}[data-sonner-toast][data-y-position=top][data-swiping=true]::before{bottom:50%;transform:scaleY(3) translateY(50%)}[data-sonner-toast][data-y-position=bottom][data-swiping=true]::before{top:50%;transform:scaleY(3) translateY(-50%)}[data-sonner-toast][data-swiping=false][data-removed=true]::before{content:'';position:absolute;inset:0;transform:scaleY(2)}[data-sonner-toast][data-expanded=true]::after{content:'';position:absolute;left:0;height:calc(var(--gap) + 1px);bottom:100%;width:100%}[data-sonner-toast][data-mounted=true]{--y:translateY(0);opacity:1}[data-sonner-toast][data-expanded=false][data-front=false]{--scale:var(--toasts-before) * 0.05 + 1;--y:translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));height:var(--front-toast-height)}[data-sonner-toast]>*{transition:opacity .4s}[data-sonner-toast][data-x-position=right]{right:0}[data-sonner-toast][data-x-position=left]{left:0}[data-sonner-toast][data-expanded=false][data-front=false][data-styled=true]>*{opacity:0}[data-sonner-toast][data-visible=false]{opacity:0;pointer-events:none}[data-sonner-toast][data-mounted=true][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset)));height:var(--initial-height)}[data-sonner-toast][data-removed=true][data-front=true][data-swipe-out=false]{--y:translateY(calc(var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=false]{--y:translateY(40%);opacity:0;transition:transform .5s,opacity .2s}[data-sonner-toast][data-removed=true][data-front=false]::before{height:calc(var(--initial-height) + 20%)}[data-sonner-toast][data-swiping=true]{transform:var(--y) translateY(var(--swipe-amount-y,0)) translateX(var(--swipe-amount-x,0));transition:none}[data-sonner-toast][data-swiped=true]{user-select:none}[data-sonner-toast][data-swipe-out=true][data-y-position=bottom],[data-sonner-toast][data-swipe-out=true][data-y-position=top]{animation-duration:.2s;animation-timing-function:ease-out;animation-fill-mode:forwards}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=left]{animation-name:swipe-out-left}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=right]{animation-name:swipe-out-right}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=up]{animation-name:swipe-out-up}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=down]{animation-name:swipe-out-down}@keyframes swipe-out-left{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) - 100%));opacity:0}}@keyframes swipe-out-right{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) + 100%));opacity:0}}@keyframes swipe-out-up{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) - 100%));opacity:0}}@keyframes swipe-out-down{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) + 100%));opacity:0}}@media (max-width:600px){[data-sonner-toaster]{position:fixed;right:var(--mobile-offset-right);left:var(--mobile-offset-left);width:100%}[data-sonner-toaster][dir=rtl]{left:calc(var(--mobile-offset-left) * -1)}[data-sonner-toaster] [data-sonner-toast]{left:0;right:0;width:calc(100% - var(--mobile-offset-left) * 2)}[data-sonner-toaster][data-x-position=left]{left:var(--mobile-offset-left)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--mobile-offset-bottom)}[data-sonner-toaster][data-y-position=top]{top:var(--mobile-offset-top)}[data-sonner-toaster][data-x-position=center]{left:var(--mobile-offset-left);right:var(--mobile-offset-right);transform:none}}[data-sonner-toaster][data-sonner-theme=light]{--normal-bg:#fff;--normal-border:var(--gray4);--normal-text:var(--gray12);--success-bg:hsl(143, 85%, 96%);--success-border:hsl(145, 92%, 87%);--success-text:hsl(140, 100%, 27%);--info-bg:hsl(208, 100%, 97%);--info-border:hsl(221, 91%, 93%);--info-text:hsl(210, 92%, 45%);--warning-bg:hsl(49, 100%, 97%);--warning-border:hsl(49, 91%, 84%);--warning-text:hsl(31, 92%, 45%);--error-bg:hsl(359, 100%, 97%);--error-border:hsl(359, 100%, 94%);--error-text:hsl(360, 100%, 45%)}[data-sonner-toaster][data-sonner-theme=light] [data-sonner-toast][data-invert=true]{--normal-bg:#000;--normal-border:hsl(0, 0%, 20%);--normal-text:var(--gray1)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-invert=true]{--normal-bg:#fff;--normal-border:var(--gray3);--normal-text:var(--gray12)}[data-sonner-toaster][data-sonner-theme=dark]{--normal-bg:#000;--normal-bg-hover:hsl(0, 0%, 12%);--normal-border:hsl(0, 0%, 20%);--normal-border-hover:hsl(0, 0%, 25%);--normal-text:var(--gray1);--success-bg:hsl(150, 100%, 6%);--success-border:hsl(147, 100%, 12%);--success-text:hsl(150, 86%, 65%);--info-bg:hsl(215, 100%, 6%);--info-border:hsl(223, 43%, 17%);--info-text:hsl(216, 87%, 65%);--warning-bg:hsl(64, 100%, 6%);--warning-border:hsl(60, 100%, 9%);--warning-text:hsl(46, 87%, 65%);--error-bg:hsl(358, 76%, 10%);--error-border:hsl(357, 89%, 16%);--error-text:hsl(358, 100%, 81%)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]{background:var(--normal-bg);border-color:var(--normal-border);color:var(--normal-text)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]:hover{background:var(--normal-bg-hover);border-color:var(--normal-border-hover)}[data-rich-colors=true][data-sonner-toast][data-type=success]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=success] [data-close-button]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=info]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=info] [data-close-button]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning] [data-close-button]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=error]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}[data-rich-colors=true][data-sonner-toast][data-type=error] [data-close-button]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}.sonner-loading-wrapper{--size:16px;height:var(--size);width:var(--size);position:absolute;inset:0;z-index:10}.sonner-loading-wrapper[data-visible=false]{transform-origin:center;animation:sonner-fade-out .2s ease forwards}.sonner-spinner{position:relative;top:50%;left:50%;height:var(--size);width:var(--size)}.sonner-loading-bar{animation:sonner-spin 1.2s linear infinite;background:var(--gray11);border-radius:6px;height:8%;left:-10%;position:absolute;top:-3.9%;width:24%}.sonner-loading-bar:first-child{animation-delay:-1.2s;transform:rotate(.0001deg) translate(146%)}.sonner-loading-bar:nth-child(2){animation-delay:-1.1s;transform:rotate(30deg) translate(146%)}.sonner-loading-bar:nth-child(3){animation-delay:-1s;transform:rotate(60deg) translate(146%)}.sonner-loading-bar:nth-child(4){animation-delay:-.9s;transform:rotate(90deg) translate(146%)}.sonner-loading-bar:nth-child(5){animation-delay:-.8s;transform:rotate(120deg) translate(146%)}.sonner-loading-bar:nth-child(6){animation-delay:-.7s;transform:rotate(150deg) translate(146%)}.sonner-loading-bar:nth-child(7){animation-delay:-.6s;transform:rotate(180deg) translate(146%)}.sonner-loading-bar:nth-child(8){animation-delay:-.5s;transform:rotate(210deg) translate(146%)}.sonner-loading-bar:nth-child(9){animation-delay:-.4s;transform:rotate(240deg) translate(146%)}.sonner-loading-bar:nth-child(10){animation-delay:-.3s;transform:rotate(270deg) translate(146%)}.sonner-loading-bar:nth-child(11){animation-delay:-.2s;transform:rotate(300deg) translate(146%)}.sonner-loading-bar:nth-child(12){animation-delay:-.1s;transform:rotate(330deg) translate(146%)}@keyframes sonner-fade-in{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}@keyframes sonner-fade-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}@keyframes sonner-spin{0%{opacity:1}100%{opacity:.15}}@media (prefers-reduced-motion){.sonner-loading-bar,[data-sonner-toast],[data-sonner-toast]>*{transition:none!important;animation:none!important}}.sonner-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .2s,transform .2s}.sonner-loader[data-visible=false]{opacity:0;transform:scale(.8) translate(-50%,-50%)}</style><style type="text/css">[data-sonner-toaster][dir=ltr],html[dir=ltr]{--toast-icon-margin-start:-3px;--toast-icon-margin-end:4px;--toast-svg-margin-start:-1px;--toast-svg-margin-end:0px;--toast-button-margin-start:auto;--toast-button-margin-end:0;--toast-close-button-start:0;--toast-close-button-end:unset;--toast-close-button-transform:translate(-35%, -35%)}[data-sonner-toaster][dir=rtl],html[dir=rtl]{--toast-icon-margin-start:4px;--toast-icon-margin-end:-3px;--toast-svg-margin-start:0px;--toast-svg-margin-end:-1px;--toast-button-margin-start:0;--toast-button-margin-end:auto;--toast-close-button-start:unset;--toast-close-button-end:0;--toast-close-button-transform:translate(35%, -35%)}[data-sonner-toaster]{position:fixed;width:var(--width);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;--gray1:hsl(0, 0%, 99%);--gray2:hsl(0, 0%, 97.3%);--gray3:hsl(0, 0%, 95.1%);--gray4:hsl(0, 0%, 93%);--gray5:hsl(0, 0%, 90.9%);--gray6:hsl(0, 0%, 88.7%);--gray7:hsl(0, 0%, 85.8%);--gray8:hsl(0, 0%, 78%);--gray9:hsl(0, 0%, 56.1%);--gray10:hsl(0, 0%, 52.3%);--gray11:hsl(0, 0%, 43.5%);--gray12:hsl(0, 0%, 9%);--border-radius:8px;box-sizing:border-box;padding:0;margin:0;list-style:none;outline:0;z-index:999999999;transition:transform .4s ease}@media (hover:none) and (pointer:coarse){[data-sonner-toaster][data-lifted=true]{transform:none}}[data-sonner-toaster][data-x-position=right]{right:var(--offset-right)}[data-sonner-toaster][data-x-position=left]{left:var(--offset-left)}[data-sonner-toaster][data-x-position=center]{left:50%;transform:translateX(-50%)}[data-sonner-toaster][data-y-position=top]{top:var(--offset-top)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--offset-bottom)}[data-sonner-toast]{--y:translateY(100%);--lift-amount:calc(var(--lift) * var(--gap));z-index:var(--z-index);position:absolute;opacity:0;transform:var(--y);touch-action:none;transition:transform .4s,opacity .4s,height .4s,box-shadow .2s;box-sizing:border-box;outline:0;overflow-wrap:anywhere}[data-sonner-toast][data-styled=true]{padding:16px;background:var(--normal-bg);border:1px solid var(--normal-border);color:var(--normal-text);border-radius:var(--border-radius);box-shadow:0 4px 12px rgba(0,0,0,.1);width:var(--width);font-size:13px;display:flex;align-items:center;gap:6px}[data-sonner-toast]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-y-position=top]{top:0;--y:translateY(-100%);--lift:1;--lift-amount:calc(1 * var(--gap))}[data-sonner-toast][data-y-position=bottom]{bottom:0;--y:translateY(100%);--lift:-1;--lift-amount:calc(var(--lift) * var(--gap))}[data-sonner-toast][data-styled=true] [data-description]{font-weight:400;line-height:1.4;color:#3f3f3f}[data-rich-colors=true][data-sonner-toast][data-styled=true] [data-description]{color:inherit}[data-sonner-toaster][data-sonner-theme=dark] [data-description]{color:#e8e8e8}[data-sonner-toast][data-styled=true] [data-title]{font-weight:500;line-height:1.5;color:inherit}[data-sonner-toast][data-styled=true] [data-icon]{display:flex;height:16px;width:16px;position:relative;justify-content:flex-start;align-items:center;flex-shrink:0;margin-left:var(--toast-icon-margin-start);margin-right:var(--toast-icon-margin-end)}[data-sonner-toast][data-promise=true] [data-icon]>svg{opacity:0;transform:scale(.8);transform-origin:center;animation:sonner-fade-in .3s ease forwards}[data-sonner-toast][data-styled=true] [data-icon]>*{flex-shrink:0}[data-sonner-toast][data-styled=true] [data-icon] svg{margin-left:var(--toast-svg-margin-start);margin-right:var(--toast-svg-margin-end)}[data-sonner-toast][data-styled=true] [data-content]{display:flex;flex-direction:column;gap:2px}[data-sonner-toast][data-styled=true] [data-button]{border-radius:4px;padding-left:8px;padding-right:8px;height:24px;font-size:12px;color:var(--normal-bg);background:var(--normal-text);margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end);border:none;font-weight:500;cursor:pointer;outline:0;display:flex;align-items:center;flex-shrink:0;transition:opacity .4s,box-shadow .2s}[data-sonner-toast][data-styled=true] [data-button]:focus-visible{box-shadow:0 0 0 2px rgba(0,0,0,.4)}[data-sonner-toast][data-styled=true] [data-button]:first-of-type{margin-left:var(--toast-button-margin-start);margin-right:var(--toast-button-margin-end)}[data-sonner-toast][data-styled=true] [data-cancel]{color:var(--normal-text);background:rgba(0,0,0,.08)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-styled=true] [data-cancel]{background:rgba(255,255,255,.3)}[data-sonner-toast][data-styled=true] [data-close-button]{position:absolute;left:var(--toast-close-button-start);right:var(--toast-close-button-end);top:0;height:20px;width:20px;display:flex;justify-content:center;align-items:center;padding:0;color:var(--gray12);background:var(--normal-bg);border:1px solid var(--gray4);transform:var(--toast-close-button-transform);border-radius:50%;cursor:pointer;z-index:1;transition:opacity .1s,background .2s,border-color .2s}[data-sonner-toast][data-styled=true] [data-close-button]:focus-visible{box-shadow:0 4px 12px rgba(0,0,0,.1),0 0 0 2px rgba(0,0,0,.2)}[data-sonner-toast][data-styled=true] [data-disabled=true]{cursor:not-allowed}[data-sonner-toast][data-styled=true]:hover [data-close-button]:hover{background:var(--gray2);border-color:var(--gray5)}[data-sonner-toast][data-swiping=true]::before{content:'';position:absolute;left:-100%;right:-100%;height:100%;z-index:-1}[data-sonner-toast][data-y-position=top][data-swiping=true]::before{bottom:50%;transform:scaleY(3) translateY(50%)}[data-sonner-toast][data-y-position=bottom][data-swiping=true]::before{top:50%;transform:scaleY(3) translateY(-50%)}[data-sonner-toast][data-swiping=false][data-removed=true]::before{content:'';position:absolute;inset:0;transform:scaleY(2)}[data-sonner-toast][data-expanded=true]::after{content:'';position:absolute;left:0;height:calc(var(--gap) + 1px);bottom:100%;width:100%}[data-sonner-toast][data-mounted=true]{--y:translateY(0);opacity:1}[data-sonner-toast][data-expanded=false][data-front=false]{--scale:var(--toasts-before) * 0.05 + 1;--y:translateY(calc(var(--lift-amount) * var(--toasts-before))) scale(calc(-1 * var(--scale)));height:var(--front-toast-height)}[data-sonner-toast]>*{transition:opacity .4s}[data-sonner-toast][data-x-position=right]{right:0}[data-sonner-toast][data-x-position=left]{left:0}[data-sonner-toast][data-expanded=false][data-front=false][data-styled=true]>*{opacity:0}[data-sonner-toast][data-visible=false]{opacity:0;pointer-events:none}[data-sonner-toast][data-mounted=true][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset)));height:var(--initial-height)}[data-sonner-toast][data-removed=true][data-front=true][data-swipe-out=false]{--y:translateY(calc(var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=true]{--y:translateY(calc(var(--lift) * var(--offset) + var(--lift) * -100%));opacity:0}[data-sonner-toast][data-removed=true][data-front=false][data-swipe-out=false][data-expanded=false]{--y:translateY(40%);opacity:0;transition:transform .5s,opacity .2s}[data-sonner-toast][data-removed=true][data-front=false]::before{height:calc(var(--initial-height) + 20%)}[data-sonner-toast][data-swiping=true]{transform:var(--y) translateY(var(--swipe-amount-y,0)) translateX(var(--swipe-amount-x,0));transition:none}[data-sonner-toast][data-swiped=true]{user-select:none}[data-sonner-toast][data-swipe-out=true][data-y-position=bottom],[data-sonner-toast][data-swipe-out=true][data-y-position=top]{animation-duration:.2s;animation-timing-function:ease-out;animation-fill-mode:forwards}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=left]{animation-name:swipe-out-left}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=right]{animation-name:swipe-out-right}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=up]{animation-name:swipe-out-up}[data-sonner-toast][data-swipe-out=true][data-swipe-direction=down]{animation-name:swipe-out-down}@keyframes swipe-out-left{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) - 100%));opacity:0}}@keyframes swipe-out-right{from{transform:var(--y) translateX(var(--swipe-amount-x));opacity:1}to{transform:var(--y) translateX(calc(var(--swipe-amount-x) + 100%));opacity:0}}@keyframes swipe-out-up{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) - 100%));opacity:0}}@keyframes swipe-out-down{from{transform:var(--y) translateY(var(--swipe-amount-y));opacity:1}to{transform:var(--y) translateY(calc(var(--swipe-amount-y) + 100%));opacity:0}}@media (max-width:600px){[data-sonner-toaster]{position:fixed;right:var(--mobile-offset-right);left:var(--mobile-offset-left);width:100%}[data-sonner-toaster][dir=rtl]{left:calc(var(--mobile-offset-left) * -1)}[data-sonner-toaster] [data-sonner-toast]{left:0;right:0;width:calc(100% - var(--mobile-offset-left) * 2)}[data-sonner-toaster][data-x-position=left]{left:var(--mobile-offset-left)}[data-sonner-toaster][data-y-position=bottom]{bottom:var(--mobile-offset-bottom)}[data-sonner-toaster][data-y-position=top]{top:var(--mobile-offset-top)}[data-sonner-toaster][data-x-position=center]{left:var(--mobile-offset-left);right:var(--mobile-offset-right);transform:none}}[data-sonner-toaster][data-sonner-theme=light]{--normal-bg:#fff;--normal-border:var(--gray4);--normal-text:var(--gray12);--success-bg:hsl(143, 85%, 96%);--success-border:hsl(145, 92%, 87%);--success-text:hsl(140, 100%, 27%);--info-bg:hsl(208, 100%, 97%);--info-border:hsl(221, 91%, 93%);--info-text:hsl(210, 92%, 45%);--warning-bg:hsl(49, 100%, 97%);--warning-border:hsl(49, 91%, 84%);--warning-text:hsl(31, 92%, 45%);--error-bg:hsl(359, 100%, 97%);--error-border:hsl(359, 100%, 94%);--error-text:hsl(360, 100%, 45%)}[data-sonner-toaster][data-sonner-theme=light] [data-sonner-toast][data-invert=true]{--normal-bg:#000;--normal-border:hsl(0, 0%, 20%);--normal-text:var(--gray1)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast][data-invert=true]{--normal-bg:#fff;--normal-border:var(--gray3);--normal-text:var(--gray12)}[data-sonner-toaster][data-sonner-theme=dark]{--normal-bg:#000;--normal-bg-hover:hsl(0, 0%, 12%);--normal-border:hsl(0, 0%, 20%);--normal-border-hover:hsl(0, 0%, 25%);--normal-text:var(--gray1);--success-bg:hsl(150, 100%, 6%);--success-border:hsl(147, 100%, 12%);--success-text:hsl(150, 86%, 65%);--info-bg:hsl(215, 100%, 6%);--info-border:hsl(223, 43%, 17%);--info-text:hsl(216, 87%, 65%);--warning-bg:hsl(64, 100%, 6%);--warning-border:hsl(60, 100%, 9%);--warning-text:hsl(46, 87%, 65%);--error-bg:hsl(358, 76%, 10%);--error-border:hsl(357, 89%, 16%);--error-text:hsl(358, 100%, 81%)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]{background:var(--normal-bg);border-color:var(--normal-border);color:var(--normal-text)}[data-sonner-toaster][data-sonner-theme=dark] [data-sonner-toast] [data-close-button]:hover{background:var(--normal-bg-hover);border-color:var(--normal-border-hover)}[data-rich-colors=true][data-sonner-toast][data-type=success]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=success] [data-close-button]{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}[data-rich-colors=true][data-sonner-toast][data-type=info]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=info] [data-close-button]{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=warning] [data-close-button]{background:var(--warning-bg);border-color:var(--warning-border);color:var(--warning-text)}[data-rich-colors=true][data-sonner-toast][data-type=error]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}[data-rich-colors=true][data-sonner-toast][data-type=error] [data-close-button]{background:var(--error-bg);border-color:var(--error-border);color:var(--error-text)}.sonner-loading-wrapper{--size:16px;height:var(--size);width:var(--size);position:absolute;inset:0;z-index:10}.sonner-loading-wrapper[data-visible=false]{transform-origin:center;animation:sonner-fade-out .2s ease forwards}.sonner-spinner{position:relative;top:50%;left:50%;height:var(--size);width:var(--size)}.sonner-loading-bar{animation:sonner-spin 1.2s linear infinite;background:var(--gray11);border-radius:6px;height:8%;left:-10%;position:absolute;top:-3.9%;width:24%}.sonner-loading-bar:first-child{animation-delay:-1.2s;transform:rotate(.0001deg) translate(146%)}.sonner-loading-bar:nth-child(2){animation-delay:-1.1s;transform:rotate(30deg) translate(146%)}.sonner-loading-bar:nth-child(3){animation-delay:-1s;transform:rotate(60deg) translate(146%)}.sonner-loading-bar:nth-child(4){animation-delay:-.9s;transform:rotate(90deg) translate(146%)}.sonner-loading-bar:nth-child(5){animation-delay:-.8s;transform:rotate(120deg) translate(146%)}.sonner-loading-bar:nth-child(6){animation-delay:-.7s;transform:rotate(150deg) translate(146%)}.sonner-loading-bar:nth-child(7){animation-delay:-.6s;transform:rotate(180deg) translate(146%)}.sonner-loading-bar:nth-child(8){animation-delay:-.5s;transform:rotate(210deg) translate(146%)}.sonner-loading-bar:nth-child(9){animation-delay:-.4s;transform:rotate(240deg) translate(146%)}.sonner-loading-bar:nth-child(10){animation-delay:-.3s;transform:rotate(270deg) translate(146%)}.sonner-loading-bar:nth-child(11){animation-delay:-.2s;transform:rotate(300deg) translate(146%)}.sonner-loading-bar:nth-child(12){animation-delay:-.1s;transform:rotate(330deg) translate(146%)}@keyframes sonner-fade-in{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}@keyframes sonner-fade-out{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.8)}}@keyframes sonner-spin{0%{opacity:1}100%{opacity:.15}}@media (prefers-reduced-motion){.sonner-loading-bar,[data-sonner-toast],[data-sonner-toast]>*{transition:none!important;animation:none!important}}.sonner-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);transform-origin:center;transition:opacity .2s,transform .2s}.sonner-loader[data-visible=false]{opacity:0;transform:scale(.8) translate(-50%,-50%)}</style><style data-emotion="css" data-s=""></style><style id="monica-reading-highlight-style">
-        .monica-reading-highlight {
-          animation: fadeInOut 1.5s ease-in-out;
-        }
 
-        @keyframes fadeInOut {
-          0%, 100% { background-color: transparent; }
-          30%, 70% { background-color: rgba(2, 118, 255, 0.20); }
-        }
-      </style></head>
-<body monica-id="ofpnmcalabcbjgholdjcjblkibolbppb" monica-version="9.0.18">
+  #syncStatus {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #2f5d50; color: white;
+    padding: 10px 18px; border-radius: 8px;
+    font-family: monospace; font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: opacity 0.3s ease; opacity: 0;
+    z-index: 999;
+  }
+  #syncStatus.synced { background: #2f5d50; }
+  #syncStatus.saving { background: #a6812f; }
+  #syncStatus.error { background: #b5482e; }
+  .online-badge {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .online-badge.online { background: #2f5d50; }
+  .online-badge.offline { background: #b5482e; }
+</style>
+</head>
+<body>
 
 <div class="masthead">
   <div class="masthead-inner">
     <div>
       <div class="kicker">Vendor Evaluation · Internal</div>
-      <h1>AI GEO 跟踪工具评估对比</h1>
-      <div class="subtitle">Otterly.ai · Profound · Peec.ai — ZERO Markets GEO 工具调研</div>
+      <h1>AI GEO Tool Evaluation & Comparison</h1>
+      <div class="subtitle">Otterly.ai · Profound · Peec.ai — ZERO Markets GEO Tool Research</div>
     </div>
-  
+    <div style="font-family:var(--mono);font-size:11px;color:#6b6558;">
+      <span id="connectionStatus"><span class="online-badge offline" id="statusDot"></span><span id="statusText">Connecting...</span></span>
+    </div>
   </div>
   <div class="tabs">
-    <button class="tab-btn active" data-tab="compare">对比工作表</button>
-    <button class="tab-btn" data-tab="report">汇总视图</button>
+    <button class="tab-btn active" data-tab="compare">Comparison Worksheet</button>
+    <button class="tab-btn" data-tab="report">Summary Report</button>
   </div>
 </div>
 
-<!-- ============ COMPARE VIEW ============ -->
+<!-- COMPARE VIEW -->
 <div class="view active" id="view-compare">
-
   <div class="vendor-strip">
-    <div class="vendor-card head"><p>三家供应商 — 逐项打分，点击状态标签可切换，备注栏可直接输入。所有修改自动保存在本机浏览器中。</p></div>
+    <div class="vendor-card head"><p>Three vendors — score item by item. Click status labels to toggle, notes are editable. <strong>All changes sync to cloud in real-time.</strong></p></div>
     <div class="vendor-card">
       <div class="vendor-name">Otterly.ai</div>
       <a class="vendor-url" href="https://otterly.ai" target="_blank">otterly.ai</a>
-      <div><span class="vendor-tag">入门级 · $29–489/mo</span></div>
+      <div><span class="vendor-tag">Entry-level · $29–489/mo</span></div>
     </div>
     <div class="vendor-card">
       <div class="vendor-name">Profound</div>
       <a class="vendor-url" href="https://tryprofound.com" target="_blank">tryprofound.com</a>
-      <div><span class="vendor-tag">企业级 · $99–custom</span></div>
+      <div><span class="vendor-tag">Enterprise · $99–custom</span></div>
     </div>
     <div class="vendor-card">
       <div class="vendor-name">Peec.ai</div>
       <a class="vendor-url" href="https://peec.ai" target="_blank">peec.ai</a>
-      <div><span class="vendor-tag">中端 · €85+/mo</span></div>
+      <div><span class="vendor-tag">Mid-tier · €85+/mo</span></div>
     </div>
   </div>
 
-  <div class="score-bar" id="scoreBar"><div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">总分按已打分问题计算：✅=1分 ⚠️=0.5分 ❌=0分，未打分不计入总数</p></div>
-    <div class="score-cell">
-      <div class="label">Otterly.ai 覆盖度</div>
-      <div class="num">25<span style="font-size:14px;color:#8a8474;">%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:25%; background:var(--none)"></div></div>
-      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅4 ⚠️1 ❌0 ·未打分13
-      </div>
-    </div>
-    <div class="score-cell">
-      <div class="label">Profound 覆盖度</div>
-      <div class="num">19<span style="font-size:14px;color:#8a8474;">%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:19%; background:var(--none)"></div></div>
-      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅3 ⚠️1 ❌1 ·未打分13
-      </div>
-    </div>
-    <div class="score-cell">
-      <div class="label">Peec.ai 覆盖度</div>
-      <div class="num">28<span style="font-size:14px;color:#8a8474;">%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:28%; background:var(--none)"></div></div>
-      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅5 ⚠️0 ❌0 ·未打分13
-      </div>
-    </div></div>
+  <div class="score-bar" id="scoreBar">
+    <div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Overall score calculated from rated questions: ✅=1 pt, ⚠️=0.5 pts, ❌=0 pts; unrated questions are excluded from total</p></div>
+    <div class="score-cell"><div class="label">Otterly.ai Coverage</div><div class="num">33<span style="font-size:14px;color:#8a8474;">%</span></div><div class="bar-track"><div class="bar-fill" style="width:33%; background:var(--none)"></div></div><div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">✅3 ⚠️6 ❌2 · Unrated7</div></div>
+    <div class="score-cell"><div class="label">Profound Coverage</div><div class="num">33<span style="font-size:14px;color:#8a8474;">%</span></div><div class="bar-track"><div class="bar-fill" style="width:33%; background:var(--none)"></div></div><div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">✅4 ⚠️4 ❌1 · Unrated9</div></div>
+    <div class="score-cell"><div class="label">Peec.ai Coverage</div><div class="num">47<span style="font-size:14px;color:#8a8474;">%</span></div><div class="bar-track"><div class="bar-fill" style="width:47%; background:var(--partial)"></div></div><div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">✅7 ⚠️3 ❌1 · Unrated7</div></div>
+  </div>
 
   <div class="controls">
     <div class="left">
-      <button class="filter-chip active" data-filter="all">全部问题</button>
-      <button class="filter-chip" data-filter="priority">仅重点问题 ●</button>
-      <button class="filter-chip" data-filter="unrated">仅未打分</button>
+      <button class="filter-chip active" data-filter="all">All Questions</button>
+      <button class="filter-chip" data-filter="priority">Priority Questions Only ●</button>
+      <button class="filter-chip" data-filter="unrated">Unrated Only</button>
     </div>
     <div>
-      <button class="btn ghost small" id="exportBtn">导出JSON</button>
-      <button class="btn ghost small" id="resetBtn">重置为默认清单</button>
+      <button class="btn ghost small" id="exportBtn">Export JSON</button>
+      <button class="btn ghost small" id="resetBtn">Reset to Default List</button>
+      <button class="btn ghost small" id="forceSyncBtn">Force Sync</button>
     </div>
   </div>
 
-  <div id="categoriesRoot"><div class="category" data-cat-id="cat-engine">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">1</span> A. AI引擎覆盖与多语言</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q1">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q1" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q1">基础套餐包含哪些AI引擎？哪些需要加购?</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q1" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q1" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q1" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q1" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q1" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q1" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q1" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q2">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q2" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q2">能否现场演示英语的真实提问追踪效果？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q2" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q2" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q2" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q2" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q2" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q2" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q2" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q3">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q3" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q3">支持哪些地区, 哪些语言? 多地区/多语言追踪是否额外收费？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q3" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q3" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q3" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q3" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q3" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q3" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q3" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「A. AI引擎覆盖与多语言」下新增一个问题…" data-add-q="cat-engine">
-          <button class="btn small" data-add-q-btn="cat-engine">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-ai-visibility">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">2</span> B. AI侧可见性能力</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q4">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q4" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q4">能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q4" data-vendor="otterly">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q4" data-vendor="otterly">核心功能，CSV导出</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q4" data-vendor="profound">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q4" data-vendor="profound">核心功能，周环比</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q4" data-vendor="peec">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q4" data-vendor="peec">核心功能，7/14/30天窗口+自定义</textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q4" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q5">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q5" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q5">能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q5" data-vendor="otterly">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q5" data-vendor="otterly">域名排名分析</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q5" data-vendor="profound">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q5" data-vendor="profound">Conversation Explorer可看完整对话上下文</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q5" data-vendor="peec">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q5" data-vendor="peec">来源按类型分类(竞品/品牌/UGC/编辑)</textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q5" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q6">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q6" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q6">当AI引用内容时，能否定位到具体是哪个页面/段落被引用或改写？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q6" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q6" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q6" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q6" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q6" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q6" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q6" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q7">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q7" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q7">现场实际查一个品牌，AI提到它时语气是正面/中性/负面——能否当场演示？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q7" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q7" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q7" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q7" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q7" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q7" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q7" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「B. AI侧可见性能力下新增一个问题…" data-add-q="cat-ai-visibility">
-          <button class="btn small" data-add-q-btn="cat-ai-visibility">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-attribution">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">3</span> C. 流量归因与ROI</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q8">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q8" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q8">能否将AI提及与网站真实访问/转化数据关联？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q8" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q8" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q8" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q8" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q8" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q8" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q8" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q9">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q9" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q9">如果不能原生归因，是否有方法论/历史案例说明提及率与真实流量的相关性？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q9" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q9" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q9" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q9" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q9" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q9" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q9" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「C. 流量归因与ROI」下新增一个问题…" data-add-q="cat-attribution">
-          <button class="btn small" data-add-q-btn="cat-attribution">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-methodology">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">4</span> D. 数据方法论</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q10">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q10" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q10">数据是通过官方API获取还是模拟网页抓取？更新频率是多久？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q10" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q10" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q10" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q10" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q10" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q10" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q10" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q11">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q11" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q11">同一提示词多次查询，结果是否会有波动？如何处理这种不稳定性？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q11" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q11" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q11" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q11" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q11" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q11" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q11" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「D. 数据方法论」下新增一个问题…" data-add-q="cat-methodology">
-          <button class="btn small" data-add-q-btn="cat-methodology">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-competitor">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">5</span> E. 竞品与告警</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q12">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q12" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q12">能否追踪长尾关键词，在这些词上对比我们与竞品被AI提及的声量占比（SOV）？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q12" data-vendor="otterly">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q12" data-vendor="otterly">标配功能</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q12" data-vendor="profound">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q12" data-vendor="profound">标配功能，可筛选LLM/竞品/prompt</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q12" data-vendor="peec">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q12" data-vendor="peec">Add Brands功能，同prompt下竞品对比</textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q12" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q13">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q13" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q13">能否设置负面/风险类关键词的自动告警？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q13" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q13" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q13" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q13" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q13" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q13" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q13" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「E. 竞品与告警」下新增一个问题…" data-add-q="cat-competitor">
-          <button class="btn small" data-add-q-btn="cat-competitor">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-content">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">6</span> F. 可落地优化建议</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q14">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q14" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q14">有什么功能可以协助优化?</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q14" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q14" data-vendor="otterly">有Content Audit+GEO Score+Content Brief，但评测认为优化指导深度不如成熟平台</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q14" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q14" data-vendor="profound">有Agents自动生成AEO内容并发布到CMS，反馈周期待确认</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q14" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q14" data-vendor="peec">有Actions功能(beta)，将数据转化为优先级GEO待办清单，反馈周期待确认</textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q14" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「F. 可落地优化建议」下新增一个问题…" data-add-q="cat-content">
-          <button class="btn small" data-add-q-btn="cat-content">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-team">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">7</span> G. 团队协作与集成</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q15">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q15" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q15">是否支持多用户权限、多地区workspace？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q15" data-vendor="otterly">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q15" data-vendor="otterly">Agency版支持Workspace Management+无限团队成员</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="none" data-status-select="q15" data-vendor="profound">
-            <option value="unset">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none" selected="">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q15" data-vendor="profound">⚠️无多账号支持，被评测点名为不适合代理/多品牌场景的短板</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q15" data-vendor="peec">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q15" data-vendor="peec">所有套餐均含无限席位，按workspace收费而非按人头，适合多地区团队</textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q15" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q16">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q16" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q16">是否有公开API/MCP？需要哪个套餐档位？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="partial" data-status-select="q16" data-vendor="otterly">
-            <option value="unset">未打分</option><option value="full">✅ 完全支持</option><option value="partial" selected="">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q16" data-vendor="otterly">已有官方MCP server+公开API+Claude Skill，但需Standard档($189)以上</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="partial" data-status-select="q16" data-vendor="profound">
-            <option value="unset">未打分</option><option value="full">✅ 完全支持</option><option value="partial" selected="">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q16" data-vendor="profound">API为Enterprise专属，Lite版无API</textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="full" data-status-select="q16" data-vendor="peec">
-            <option value="unset">未打分</option><option value="full" selected="">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q16" data-vendor="peec">所有档位含API，另有MCP端点，可接Claude/Cursor/n8n</textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q16" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「G. 团队协作与集成」下新增一个问题…" data-add-q="cat-team">
-          <button class="btn small" data-add-q-btn="cat-team">添加</button>
-        </div>
-      </div>
-    </div><div class="category" data-cat-id="cat-trial">
-      <div class="category-head">
-        <div class="title"><span class="cat-index">8</span> H. 试用安排</div>
-        <div class="chevron">▾</div>
-      </div>
-      <div class="cat-body">
-        <table>
-          <thead>
-            <tr>
-              <th class="q-col">问题</th>
-              <th class="v-col">Otterly.ai</th>
-              <th class="v-col">Profound</th>
-              <th class="v-col">Peec.ai</th>
-              <th class="actions-col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            
-  <tr data-q-id="q17">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority on" data-priority-toggle="q17" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q17">试用期天数、给的是哪个套餐档位的额度？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q17" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q17" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q17" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q17" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q17" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q17" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q17" title="删除此问题">✕</button></td>
-  </tr>
-  <tr data-q-id="q18">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority " data-priority-toggle="q18" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="q18">试用结束能否拿到基准报告？数据是否可导出？</div>
-      </div>
-    </td>
-    
-      <td data-label="Otterly.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q18" data-vendor="otterly">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q18" data-vendor="otterly"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Profound">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q18" data-vendor="profound">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q18" data-vendor="profound"></textarea>
-        </div>
-      </td>
-    
-      <td data-label="Peec.ai">
-        <div class="status-wrap">
-          <select class="status-select" data-v="unset" data-status-select="q18" data-vendor="peec">
-            <option value="unset" selected="">未打分</option><option value="full">✅ 完全支持</option><option value="partial">⚠️ 部分支持</option><option value="none">❌ 不支持</option>
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="q18" data-vendor="peec"></textarea>
-        </div>
-      </td>
-    
-    <td data-label=""><button class="row-del" data-del-q="q18" title="删除此问题">✕</button></td>
-  </tr>
-          </tbody>
-        </table>
-        <div class="add-q-row">
-          <input type="text" placeholder="+ 在「H. 试用安排」下新增一个问题…" data-add-q="cat-trial">
-          <button class="btn small" data-add-q-btn="cat-trial">添加</button>
-        </div>
-      </div>
-    </div></div>
+  <div id="categoriesRoot"></div>
 
   <div class="add-cat-row">
-    <input type="text" id="newCatInput" placeholder="+ 新增一个问题分类，例如「合规与数据安全」…">
-    <button class="btn" id="addCatBtn">添加分类</button>
+    <input type="text" id="newCatInput" placeholder="+ Add a new question category, e.g., 'Compliance & Data Security'…">
+    <button class="btn" id="addCatBtn">Add Category</button>
   </div>
 </div>
 
-<!-- ============ REPORT VIEW ============ -->
+<!-- REPORT VIEW -->
 <div class="view" id="view-report">
   <div class="report-hero">
-    <h2>汇报摘要：三家 AI GEO 工具对比</h2>
-    <p>基于三次平台沟通 + 官方资料交叉核实 + 实际试用，围绕引擎覆盖、情感分析、流量归因、数据方法论等关键维度进行评估。以下结论会随「对比工作表」的修改自动更新。</p>
+    <h2>Executive Summary: Three AI GEO Tools Comparison</h2>
+    <p>Based on three vendor communications, cross-verified with public documentation, and actual trials. Evaluated across key dimensions including engine coverage, sentiment analysis, traffic attribution, and data methodology. Conclusions update automatically when changes are made in the Comparison Worksheet.</p>
   </div>
 
-  <div class="recommend-grid" id="recommendGrid">
-    <div class="rec-card winner">
-      <div class="rank">★ 综合覆盖度最高</div>
-      <h3>Peec.ai</h3>
-      <div class="fit">适合：中端多地区团队 / 需要MCP和多workspace · 覆盖度 28%</div>
-      <ul><li>✅ 能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？</li><li>✅ 能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？</li><li>✅ 能否追踪长尾关键词，在这些词上对比我们与竞品被AI提及的声量占比（SOV）？</li></ul>
-      
-    </div>
-  
-    <div class="rec-card ">
-      <div class="rank">排名 #2</div>
-      <h3>Otterly.ai</h3>
-      <div class="fit">适合：入门试水 / 预算有限团队 · 覆盖度 25%</div>
-      <ul><li>✅ 能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？</li><li>✅ 能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？</li><li>✅ 能否追踪长尾关键词，在这些词上对比我们与竞品被AI提及的声量占比（SOV）？</li></ul>
-      
-    </div>
-  
-    <div class="rec-card ">
-      <div class="rank">排名 #3</div>
-      <h3>Profound</h3>
-      <div class="fit">适合：企业级 / 需要深度归因与合规认证 · 覆盖度 19%</div>
-      <ul><li>✅ 能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？</li><li>✅ 能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？</li><li>✅ 能否追踪长尾关键词，在这些词上对比我们与竞品被AI提及的声量占比（SOV）？</li></ul>
-      <ul style="margin-top:6px;"><li style="color:var(--none)">❌ 是否支持多用户权限、多地区workspace？</li></ul>
-    </div>
-  </div>
+  <div class="recommend-grid" id="recommendGrid"></div>
 
   <div class="summary-table-wrap">
     <table>
       <thead>
         <tr>
-          <th style="width:34%">问题</th>
+          <th style="width:34%">Question</th>
           <th style="width:22%; text-align:center;">Otterly.ai</th>
           <th style="width:22%; text-align:center;">Profound</th>
           <th style="width:22%; text-align:center;">Peec.ai</th>
         </tr>
       </thead>
-      <tbody id="reportTableBody"><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">A. AI引擎覆盖与多语言</td></tr><tr>
-        <td>● 基础套餐包含哪些AI引擎？哪些需要加购?</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr>
-        <td>● 能否现场演示英语的真实提问追踪效果？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr>
-        <td>支持哪些地区, 哪些语言? 多地区/多语言追踪是否额外收费？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">B. AI侧可见性能力</td></tr><tr>
-        <td>● 能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？</td>
-        <td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">核心功能，CSV导出</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">核心功能，周环比</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">核心功能，7/14/30天窗口+自定义</span>
-          </td>
-      </tr><tr>
-        <td>● 能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？</td>
-        <td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">域名排名分析</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">Conversation Explorer可看完整对话上下文</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">来源按类型分类(竞品/品牌/UGC/编辑)</span>
-          </td>
-      </tr><tr>
-        <td>当AI引用内容时，能否定位到具体是哪个页面/段落被引用或改写？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr>
-        <td>● 现场实际查一个品牌，AI提到它时语气是正面/中性/负面——能否当场演示？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">C. 流量归因与ROI</td></tr><tr>
-        <td>● 能否将AI提及与网站真实访问/转化数据关联？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr>
-        <td>● 如果不能原生归因，是否有方法论/历史案例说明提及率与真实流量的相关性？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">D. 数据方法论</td></tr><tr>
-        <td>● 数据是通过官方API获取还是模拟网页抓取？更新频率是多久？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr>
-        <td>同一提示词多次查询，结果是否会有波动？如何处理这种不稳定性？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">E. 竞品与告警</td></tr><tr>
-        <td>能否追踪长尾关键词，在这些词上对比我们与竞品被AI提及的声量占比（SOV）？</td>
-        <td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">标配功能</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">标配功能，可筛选LLM/竞品/prompt</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">Add Brands功能，同prompt下竞品对比</span>
-          </td>
-      </tr><tr>
-        <td>● 能否设置负面/风险类关键词的自动告警？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">F. 可落地优化建议</td></tr><tr>
-        <td>有什么功能可以协助优化?</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            <span class="cell-note">有Content Audit+GEO Score+Content Brief，但评测认为优化指导深度不如成熟平台</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            <span class="cell-note">有Agents自动生成AEO内容并发布到CMS，反馈周期待确认</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            <span class="cell-note">有Actions功能(beta)，将数据转化为优先级GEO待办清单，反馈周期待确认</span>
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">G. 团队协作与集成</td></tr><tr>
-        <td>是否支持多用户权限、多地区workspace？</td>
-        <td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">Agency版支持Workspace Management+无限团队成员</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status none">❌ 不支持</span>
-            <span class="cell-note">⚠️无多账号支持，被评测点名为不适合代理/多品牌场景的短板</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">所有套餐均含无限席位，按workspace收费而非按人头，适合多地区团队</span>
-          </td>
-      </tr><tr>
-        <td>是否有公开API/MCP？需要哪个套餐档位？</td>
-        <td style="text-align:center;">
-            <span class="cell-status partial">⚠️ 部分支持</span>
-            <span class="cell-note">已有官方MCP server+公开API+Claude Skill，但需Standard档($189)以上</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status partial">⚠️ 部分支持</span>
-            <span class="cell-note">API为Enterprise专属，Lite版无API</span>
-          </td><td style="text-align:center;">
-            <span class="cell-status full">✅ 完全支持</span>
-            <span class="cell-note">所有档位含API，另有MCP端点，可接Claude/Cursor/n8n</span>
-          </td>
-      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">H. 试用安排</td></tr><tr>
-        <td>● 试用期天数、给的是哪个套餐档位的额度？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr><tr>
-        <td>试用结束能否拿到基准报告？数据是否可导出？</td>
-        <td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td><td style="text-align:center;">
-            <span class="cell-status unset">未打分</span>
-            
-          </td>
-      </tr></tbody>
+      <tbody id="reportTableBody"></tbody>
     </table>
   </div>
 
   <div class="gap-list">
-    <h3>⚠ 三家共同存在的缺口</h3>
+    <h3>⚠ Common Gaps Across All Three Vendors</h3>
     <ul>
-      <li><strong>流量/转化闭环归因</strong>：三家都不能把"AI提及"直接等同于"网站真实访问/转化"。Otterly 和 Peec.ai 无原生 GA4 深度打通（仅支持导出/Looker Studio）；Profound 的归因依赖 CDN 集成（Akamai/Cloudflare等），中小企业或非对应架构的网站可能无法使用。建议：无论选哪家，都需要我们自己在 GA4 做自定义渠道分组来补足这条数据链。</li>
-      <li><strong>Google AI Overviews 的点击流量</strong>：在 GA4 中天然被归类为"自然搜索"，目前没有任何工具能干净拆分出来，这是 GA4 底层设计问题，不是供应商的缺陷。</li>
-      <li><strong>情感分析的可靠性需现场验证</strong>：Otterly 官方宣称支持但第三方评测发现仪表盘中未见；Profound、Peec.ai 的情感分析在评测中相对更被认可，但仍建议三家都要求现场演示，不接受口头确认。</li>
+      <li><strong>Traffic/Conversion Attribution Loop</strong>: None of the three can directly equate "AI mentions" with "actual website visits/conversions". Otterly and Peec.ai lack native GA4 integration (only support export/Looker Studio). Profound's attribution relies on CDN integration (Akamai/Cloudflare etc.), which may not be available for SMBs or sites with different architecture. Recommendation: Regardless of the final choice, we need to set up custom channel groupings in GA4 to bridge this data gap ourselves.</li>
+      <li><strong>Google AI Overviews Click Traffic</strong>: This traffic is naturally classified as "Organic Search" in GA4. No tool can cleanly isolate it today — this is a GA4 platform limitation, not a vendor-specific issue.</li>
+      <li><strong>Sentiment Analysis Reliability Needs Live Verification</strong>: Otterly officially claims this feature, but third-party reviews note it's absent from the dashboard. Profound and Peec.ai's sentiment analysis are more positively reviewed, but we recommend requiring live demos from all three vendors — do not accept verbal confirmations.</li>
     </ul>
   </div>
 
   <footer>
-    <span>ZERO Markets · GEO 工具内部文档</span>
-    <span id="reportFooterDate">生成于 2026/7/1 13:22:58</span>
+    <span>ZERO Markets · GEO Tool Internal Documentation</span>
+    <span id="reportFooterDate">Generated on 7/1/2026</span>
   </footer>
 </div>
 
 <footer style="margin-top:-20px;">
-  <span>数据来源：三方公开资料 + 供应商沟通会记录（2026年6-7月核实）</span>
-  <span>本页所有编辑保存在浏览器本地存储中</span>
+  <span>Data sources: Public documentation + vendor communications (Verified June-July 2026)</span>
+  <span>All edits sync to cloud in real-time</span>
 </footer>
 
-<script>
-(function(){
+<div id="syncStatus">✅ Synced</div>
 
+<script>
+// ============================================================
+// FIREBASE CONFIGURATION
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBFvGsJ0U-pFYI6THMETm7YfZNWNm8Ue-M",
+  authDomain: "geo-tool-58b2c.firebaseapp.com",
+  databaseURL: "https://geo-tool-58b2c-default-rtdb.firebaseio.com",
+  projectId: "geo-tool-58b2c",
+  storageBucket: "geo-tool-58b2c.firebasestorage.app",
+  messagingSenderId: "590964366005",
+  appId: "1:590964366005:web:0ad359ffa140fbce93bcfc"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const dbRef = db.ref('geoData');
+
+console.log("✅ Firebase connected!");
+
+// ============================================================
+// APPLICATION STATE
+// ============================================================
 const STORAGE_KEY = "geo_vendor_comparison_v1";
 const VENDORS = ["otterly","profound","peec"];
 const VENDOR_LABELS = {otterly:"Otterly.ai", profound:"Profound", peec:"Peec.ai"};
 
-// ---------- Default dataset (pre-filled based on researched facts, editable) ----------
+// ===== ALL TEXTS TRANSLATED TO ENGLISH =====
 const DEFAULT_DATA = {
   categories: [
     {
       id: "cat-engine",
-      title: "A. AI引擎覆盖与多语言",
+      title: "A. AI Engine Coverage & Multilingual",
       questions: [
         {
-          id:"q1", text:"基础套餐包含哪些AI引擎？哪些需要加购？", priority:true,
+          id:"q1", text:"What AI engines are included in the base plan? Which ones require an add-on?", priority:true,
           status:{otterly:"partial", profound:"partial", peec:"partial"},
           notes:{
-            otterly:"基础4个引擎(ChatGPT/Perplexity/AIO/Copilot)，Gemini和AI Mode需加购$9-149/mo",
-            profound:"Starter仅含ChatGPT，Growth起才含Perplexity+AIO，Claude尚未支持",
-            peec:"基础含3个引擎，额外引擎€30-140/mo/个"
+            otterly:"Base 4 engines (ChatGPT/Perplexity/AIO/Copilot), Gemini and AI Mode add-on $9-149/mo",
+            profound:"Starter only includes ChatGPT, Growth includes Perplexity+AIO, Claude not yet supported",
+            peec:"Base includes 3 engines, additional engines €30-140/mo each"
           }
         },
         {
-          id:"q2", text:"能否现场演示越南语/葡萄牙语(巴西)的真实提问追踪效果？", priority:true,
+          id:"q2", text:"Can you do a live demo of real-time tracking for English queries?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"待会上验证", profound:"待会上验证", peec:"官方称支持任意地区/语言无加价"}
+          notes:{otterly:"TBD at meeting", profound:"TBD at meeting", peec:"Officially supports any region/language at no extra cost"}
         },
         {
-          id:"q3", text:"多地区/多语言追踪是否额外收费？", priority:false,
+          id:"q3", text:"Which regions and languages are supported? Is multi-region/multi-language tracking an additional cost?", priority:false,
           status:{otterly:"partial", profound:"unset", peec:"full"},
-          notes:{otterly:"50+国家含在套餐内，但语言层面需确认", profound:"待确认", peec:"官方明确：地区/语言不额外计费，按prompt用量计费"}
+          notes:{otterly:"50+ countries included, language support TBD", profound:"TBD", peec:"Officially: region/language not charged extra, billed by prompt usage"}
         }
       ]
     },
     {
       id:"cat-ai-visibility",
-      title:"B. AI侧可见性能力",
+      title:"B. AI-side Visibility Capabilities",
       questions: [
         {
-          id:"q4", text:"能否按时间段导出品牌在AI回答中被提及的次数和占比趋势？", priority:true,
+          id:"q4", text:"Can you export the trend of brand mention count and share of voice in AI answers over time?", priority:true,
           status:{otterly:"full", profound:"full", peec:"full"},
-          notes:{otterly:"核心功能，CSV导出", profound:"核心功能，周环比", peec:"核心功能，7/14/30天窗口+自定义"}
+          notes:{otterly:"Core feature, CSV export", profound:"Core feature, week-over-week", peec:"Core feature, 7/14/30-day window + custom"}
         },
         {
-          id:"q5", text:"能否看到具体是哪个域名/文章被AI引用，以及引用时的完整上下文？", priority:true,
+          id:"q5", text:"Can you see which specific domain/article is cited by AI, along with the full context?", priority:true,
           status:{otterly:"full", profound:"full", peec:"full"},
-          notes:{otterly:"域名排名分析", profound:"Conversation Explorer可看完整对话上下文", peec:"来源按类型分类(竞品/品牌/UGC/编辑)"}
+          notes:{otterly:"Domain ranking analysis", profound:"Conversation Explorer shows full dialogue context", peec:"Sources categorized by type (Competitor/Brand/UGC/Editorial)"}
         },
         {
-          id:"q6", text:"当AI引用我方内容时，能否定位到具体是哪个页面/段落被引用或改写？", priority:false,
+          id:"q6", text:"When AI cites content, can you pinpoint which specific page/paragraph was cited or paraphrased?", priority:false,
           status:{otterly:"partial", profound:"unset", peec:"unset"},
-          notes:{otterly:"Content Audit能看页面评分，但溯源精度需现场确认", profound:"待会上问清楚定义", peec:"待会上问清楚定义"}
+          notes:{otterly:"Content Audit shows page scores, but citation precision needs live confirmation", profound:"TBD at meeting", peec:"TBD at meeting"}
         },
         {
-          id:"q7", text:"现场实际查一个品牌，AI提到它时语气是正面/中性/负面——能否当场演示？", priority:true,
+          id:"q7", text:"Live demo: Check a brand and see if the AI's tone is positive/neutral/negative — can you demonstrate this on the spot?", priority:true,
           status:{otterly:"none", profound:"full", peec:"full"},
           notes:{
-            otterly:"⚠️第三方评测(generatemore.ai)实测：官方文档称有此功能，但仪表盘中未找到，必须现场验证",
-            profound:"官方默认功能，非加购项；能看具体语言模式和叙事而非仅正负标签",
-            peec:"官方确认为核心功能，正面/中性/负面三档"
+            otterly:"⚠️ Third-party review (generatemore.ai): Feature is in docs but not found in dashboard — must verify live",
+            profound:"Default feature, not an add-on; shows linguistic patterns and narrative framing, not just labels",
+            peec:"Confirmed core feature, three tiers: Positive/Neutral/Negative"
           }
         }
       ]
     },
     {
       id:"cat-attribution",
-      title:"C. 流量归因与ROI",
+      title:"C. Traffic Attribution & ROI",
       questions:[
         {
-          id:"q8", text:"能否将AI提及与网站真实访问/转化数据关联？是否原生打通GA4？", priority:true,
+          id:"q8", text:"Can you link AI mentions with actual website visits and conversion data? Native GA4 integration?", priority:true,
           status:{otterly:"none", profound:"partial", peec:"none"},
           notes:{
-            otterly:"无原生流量归因，仅CSV导出+Looker Studio连接器",
-            profound:"Agent Analytics可做归因，但依赖CDN集成(Akamai/CloudFront/Cloudflare)，非对应架构网站可能用不了",
-            peec:"无原生GA4集成，仅Looker Studio(Advanced档以上)+CSV导出"
+            otterly:"No native traffic attribution, only CSV export + Looker Studio connector",
+            profound:"Agent Analytics does attribution, but requires CDN integration (Akamai/CloudFront/Cloudflare) — not available for non-matching architectures",
+            peec:"No native GA4 integration, only Looker Studio (Advanced tier+) + CSV export"
           }
         },
         {
-          id:"q9", text:"如果不能原生归因，是否有方法论/历史案例说明提及率与真实流量的相关性？", priority:true,
+          id:"q9", text:"If native attribution isn't possible, do you have a methodology or case studies showing the correlation between mention rate and actual traffic?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"待会上问", profound:"待会上问，Ramp/CRS等有公开案例可参考", peec:"待会上问"}
+          notes:{otterly:"TBD at meeting", profound:"TBD at meeting; Ramp/CRS have public case studies", peec:"TBD at meeting"}
         }
       ]
     },
     {
       id:"cat-methodology",
-      title:"D. 数据方法论",
+      title:"D. Data Methodology",
       questions:[
         {
-          id:"q10", text:"数据是通过官方API获取还是模拟网页抓取？更新频率是多久？", priority:true,
+          id:"q10", text:"Is data sourced via official APIs or simulated web scraping? What is the update frequency?", priority:true,
           status:{otterly:"partial", profound:"partial", peec:"partial"},
           notes:{
-            otterly:"第三方评测指出为网页抓取(scraping)而非官方API，每日更新",
-            profound:"结构化prompt每日运行，具体方法论待确认",
-            peec:"官方明确为UI抓取模拟真实浏览器会话（非API采样），号称更贴近真实用户所见"
+            otterly:"Third-party reviews indicate web scraping (not API), daily updates",
+            profound:"Structured prompts run daily, methodology TBD",
+            peec:"Officially: UI scraping emulating real browser sessions (not API sampling), claimed to be closer to real user experience"
           }
         },
         {
-          id:"q11", text:"同一提示词多次查询，结果是否会有波动？如何处理这种不稳定性？", priority:false,
+          id:"q11", text:"Do results fluctuate with repeated queries? How do you handle this instability?", priority:false,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"待会上问", profound:"待会上问", peec:"待会上问"}
+          notes:{otterly:"TBD at meeting", profound:"TBD at meeting", peec:"TBD at meeting"}
         }
       ]
     },
     {
       id:"cat-competitor",
-      title:"E. 竞品与告警",
+      title:"E. Competitor & Alerting",
       questions:[
         {
-          id:"q12", text:"能否追踪长尾关键词，对比我们与竞品的Share of Voice？", priority:false,
+          id:"q12", text:"Can you track long-tail keywords and compare our Share of Voice (SOV) against competitors in AI mentions?", priority:false,
           status:{otterly:"full", profound:"full", peec:"full"},
-          notes:{otterly:"标配功能", profound:"标配功能，可筛选LLM/竞品/prompt", peec:"Add Brands功能，同prompt下竞品对比"}
+          notes:{otterly:"Standard feature", profound:"Standard feature, can filter by LLM/competitor/prompt", peec:"Add Brands feature, competitor comparison on same prompt"}
         },
         {
-          id:"q13", text:"能否设置负面/风险类关键词的自动告警？", priority:true,
+          id:"q13", text:"Can you set up automatic alerts for negative/risk-related keywords?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"待会上问，对合规敏感行业(外汇)很关键", profound:"待会上问", peec:"待会上问"}
+          notes:{otterly:"TBD at meeting; critical for compliance-sensitive industries (FX)", profound:"TBD at meeting", peec:"TBD at meeting"}
         }
       ]
     },
     {
       id:"cat-content",
-      title:"F. 可落地优化建议",
+      title:"F. Actionable Optimization Suggestions",
       questions:[
         {
-          id:"q14", text:"内容大纲/优化建议之后，大概多久能看到引用率变化的反馈？", priority:false,
+          id:"q14", text:"What features are available to help with optimization?", priority:false,
           status:{otterly:"partial", profound:"unset", peec:"partial"},
           notes:{
-            otterly:"有Content Audit+GEO Score+Content Brief，但评测认为优化指导深度不如成熟平台",
-            profound:"有Agents自动生成AEO内容并发布到CMS，反馈周期待确认",
-            peec:"有Actions功能(beta)，将数据转化为优先级GEO待办清单，反馈周期待确认"
+            otterly:"Has Content Audit+GEO Score+Content Brief, but reviews suggest optimization depth is less mature",
+            profound:"Has Agents that auto-generate AEO content and publish to CMS, feedback cycle TBD",
+            peec:"Has Actions feature (beta) that translates data into prioritized GEO to-do list, feedback cycle TBD"
           }
         }
       ]
     },
     {
       id:"cat-team",
-      title:"G. 团队协作与集成",
+      title:"G. Team Collaboration & Integrations",
       questions:[
         {
-          id:"q15", text:"是否支持多用户权限、多地区workspace？", priority:false,
+          id:"q15", text:"Does it support multi-user permissions and multi-region workspaces?", priority:false,
           status:{otterly:"full", profound:"none", peec:"full"},
           notes:{
-            otterly:"Agency版支持Workspace Management+无限团队成员",
-            profound:"⚠️无多账号支持，被评测点名为不适合代理/多品牌场景的短板",
-            peec:"所有套餐均含无限席位，按workspace收费而非按人头，适合多地区团队"
+            otterly:"Agency plan supports Workspace Management + unlimited team members",
+            profound:"⚠️ No multi-account support, cited as a weakness for agencies/multi-brand scenarios",
+            peec:"All plans include unlimited seats, billed by workspace rather than per user, suitable for multi-region teams"
           }
         },
         {
-          id:"q16", text:"是否有公开API/MCP？需要哪个套餐档位？", priority:false,
+          id:"q16", text:"Is there a public API/MCP? Which tier is required?", priority:false,
           status:{otterly:"partial", profound:"partial", peec:"full"},
           notes:{
-            otterly:"已有官方MCP server+公开API+Claude Skill，但需Standard档($189)以上",
-            profound:"API为Enterprise专属，Lite版无API",
-            peec:"所有档位含API，另有MCP端点，可接Claude/Cursor/n8n"
+            otterly:"Has official MCP server + public API + Claude Skill, but requires Standard tier ($189) or above",
+            profound:"API is Enterprise-only, Lite plan has no API",
+            peec:"All plans include API, plus MCP endpoints, compatible with Claude/Cursor/n8n"
           }
         }
       ]
     },
     {
       id:"cat-trial",
-      title:"H. 试用安排",
+      title:"H. Trial Arrangements",
       questions:[
         {
-          id:"q17", text:"试用期天数、给的是哪个套餐档位的额度、是否需要信用卡？", priority:true,
+          id:"q17", text:"How many trial days, and which plan tier's quota is provided? Is a credit card required?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"官方有7天免费试用，具体额度待确认", profound:"官方无自助试用，多为custom quote流程，需确认是否给demo账号", peec:"待会上问"}
+          notes:{otterly:"Official 7-day free trial, quota TBD", profound:"No self-serve trial, custom quote process; need to confirm demo account availability", peec:"TBD at meeting"}
         },
         {
-          id:"q18", text:"试用结束能否拿到基准报告？数据是否可导出？", priority:false,
+          id:"q18", text:"Can we get a benchmark report at the end of the trial? Can data be exported?", priority:false,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"待会上问", profound:"待会上问", peec:"待会上问"}
+          notes:{otterly:"TBD at meeting", profound:"TBD at meeting", peec:"TBD at meeting"}
         }
       ]
     }
   ]
 };
 
-// ---------- State ----------
-let state = loadState();
+let state = {};
+let isSyncing = false;
+let isCloudUpdate = false;
 
+// ============================================================
+// DATA OPERATIONS
+// ============================================================
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1961,32 +874,98 @@ function loadState(){
   }catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_DATA));
 }
-function saveState(){
+
+function saveStateToLocal(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+function saveStateToCloud(){
+  if (isSyncing) return;
+  isSyncing = true;
+  showSyncStatus('saving', 'Saving...');
+  dbRef.set(state)
+    .then(() => {
+      showSyncStatus('synced', '✅ Synced');
+      isSyncing = false;
+    })
+    .catch((err) => {
+      console.error('Sync error:', err);
+      showSyncStatus('error', '⚠️ Sync failed');
+      isSyncing = false;
+    });
+}
+
+function showSyncStatus(type, msg) {
+  const el = document.getElementById('syncStatus');
+  el.textContent = msg;
+  el.className = type;
+  el.style.opacity = 1;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.opacity = 0; }, 3000);
+}
+
+function updateConnectionStatus(online) {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  if (online) {
+    dot.className = 'online-badge online';
+    text.textContent = 'Online';
+  } else {
+    dot.className = 'online-badge offline';
+    text.textContent = 'Offline';
+  }
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
 const STATUS_CYCLE = ["unset","full","partial","none"];
-const STATUS_LABEL = {unset:"未打分", full:"✅ 完全支持", partial:"⚠️ 部分支持", none:"❌ 不支持"};
+const STATUS_LABEL = {unset:"Unrated", full:"✅ Fully supported", partial:"⚠️ Partially supported", none:"❌ Not supported"};
 
 let currentFilter = "all";
 let idCounter = Date.now();
 
-// ---------- Render: Compare view ----------
+function escapeHtml(str){ if(!str) return ""; return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function findQuestion(qId){ for(const cat of state.categories){ const q = cat.questions.find(x=>x.id===qId); if(q) return {q, cat}; } return null; }
+
+function renderQuestionRow(q){
+  return `
+  <tr data-q-id="${q.id}">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority ${q.priority?'on':''}" data-priority-toggle="${q.id}" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="${q.id}">${escapeHtml(q.text)}</div>
+      </div>
+    </td>
+    ${VENDORS.map(v=>`
+      <td data-label="${VENDOR_LABELS[v]}">
+        <div class="status-wrap">
+          <select class="status-select" data-v="${q.status[v]||'unset'}" data-status-select="${q.id}" data-vendor="${v}">
+            ${STATUS_CYCLE.map(s=>`<option value="${s}" ${((q.status[v]||'unset')===s)?'selected':''}>${STATUS_LABEL[s]}</option>`).join("")}
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Note…" data-note="${q.id}" data-vendor="${v}">${escapeHtml(q.notes[v]||"")}</textarea>
+        </div>
+      </td>
+    `).join("")}
+    <td data-label=""><button class="row-del" data-del-q="${q.id}" title="Delete this question">✕</button></td>
+  </tr>`;
+}
+
 function renderCategories(){
   const root = document.getElementById("categoriesRoot");
   root.innerHTML = "";
   state.categories.forEach((cat, catIdx)=>{
-    const catEl = document.createElement("div");
-    catEl.className = "category";
-    catEl.dataset.catId = cat.id;
-
     const visibleQs = cat.questions.filter(q=>{
       if(currentFilter==="priority") return q.priority;
       if(currentFilter==="unrated") return VENDORS.some(v=>q.status[v]==="unset"||!q.status[v]);
       return true;
     });
 
-    catEl.innerHTML = `
+    const el = document.createElement("div");
+    el.className = "category";
+    el.dataset.catId = cat.id;
+    el.innerHTML = `
       <div class="category-head">
         <div class="title"><span class="cat-index">${catIdx+1}</span> ${escapeHtml(cat.title)}</div>
         <div class="chevron">▾</div>
@@ -1995,7 +974,7 @@ function renderCategories(){
         <table>
           <thead>
             <tr>
-              <th class="q-col">问题</th>
+              <th class="q-col">Question</th>
               <th class="v-col">Otterly.ai</th>
               <th class="v-col">Profound</th>
               <th class="v-col">Peec.ai</th>
@@ -2007,61 +986,25 @@ function renderCategories(){
           </tbody>
         </table>
         <div class="add-q-row">
-          <input type="text" placeholder="+ 在「${escapeHtml(cat.title)}」下新增一个问题…" data-add-q="${cat.id}">
-          <button class="btn small" data-add-q-btn="${cat.id}">添加</button>
+          <input type="text" placeholder="+ Add a new question under '${escapeHtml(cat.title)}'…" data-add-q="${cat.id}">
+          <button class="btn small" data-add-q-btn="${cat.id}">Add</button>
         </div>
       </div>
     `;
-    root.appendChild(catEl);
+    root.appendChild(el);
   });
 
-  attachCategoryEvents();
-  attachRowEvents();
+  attachEvents();
   renderScoreBar();
 }
 
-function renderQuestionRow(q){
-  return `
-  <tr data-q-id="${q.id}">
-    <td data-label="问题">
-      <div class="q-text">
-        <div class="q-priority ${q.priority?'on':''}" data-priority-toggle="${q.id}" title="标记为重点问题"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="${q.id}">${escapeHtml(q.text)}</div>
-      </div>
-    </td>
-    ${VENDORS.map(v=>`
-      <td data-label="${VENDOR_LABELS[v]}">
-        <div class="status-wrap">
-          <select class="status-select" data-v="${q.status[v]||'unset'}" data-status-select="${q.id}" data-vendor="${v}">
-            ${STATUS_CYCLE.map(s=>`<option value="${s}" ${((q.status[v]||'unset')===s)?'selected':''}>${STATUS_LABEL[s]}</option>`).join("")}
-          </select>
-          <textarea class="note-input" rows="1" placeholder="备注…" data-note="${q.id}" data-vendor="${v}">${escapeHtml(q.notes[v]||"")}</textarea>
-        </div>
-      </td>
-    `).join("")}
-    <td data-label=""><button class="row-del" data-del-q="${q.id}" title="删除此问题">✕</button></td>
-  </tr>`;
-}
-
-function escapeHtml(str){
-  if(!str) return "";
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function findQuestion(qId){
-  for(const cat of state.categories){
-    const q = cat.questions.find(x=>x.id===qId);
-    if(q) return {q, cat};
-  }
-  return null;
-}
-
-function attachCategoryEvents(){
+function attachEvents(){
   document.querySelectorAll(".category-head").forEach(h=>{
     h.onclick = ()=>{
       h.parentElement.classList.toggle("collapsed");
     };
   });
+
   document.querySelectorAll("[data-add-q-btn]").forEach(btn=>{
     btn.onclick = ()=>{
       const catId = btn.dataset.addQBtn;
@@ -2076,10 +1019,12 @@ function attachCategoryEvents(){
         status:{otterly:"unset",profound:"unset",peec:"unset"},
         notes:{otterly:"",profound:"",peec:""}
       });
-      saveState();
+      saveStateToLocal();
+      saveStateToCloud();
       renderCategories();
     };
   });
+
   document.querySelectorAll("[data-add-q]").forEach(inp=>{
     inp.addEventListener("keydown", e=>{
       if(e.key==="Enter"){
@@ -2088,25 +1033,26 @@ function attachCategoryEvents(){
       }
     });
   });
-}
 
-function attachRowEvents(){
   document.querySelectorAll("[data-priority-toggle]").forEach(el=>{
     el.onclick = ()=>{
       const found = findQuestion(el.dataset.priorityToggle);
       if(found){
         found.q.priority = !found.q.priority;
-        saveState();
+        saveStateToLocal();
+        saveStateToCloud();
         renderCategories();
       }
     };
   });
+
   document.querySelectorAll("[data-edit-q]").forEach(el=>{
     el.addEventListener("blur", ()=>{
       const found = findQuestion(el.dataset.editQ);
       if(found){
         found.q.text = el.textContent.trim();
-        saveState();
+        saveStateToLocal();
+        saveStateToCloud();
         renderReport();
       }
     });
@@ -2114,18 +1060,21 @@ function attachRowEvents(){
       if(e.key==="Enter"){ e.preventDefault(); el.blur(); }
     });
   });
+
   document.querySelectorAll("[data-status-select]").forEach(el=>{
     el.addEventListener("change", ()=>{
       const found = findQuestion(el.dataset.statusSelect);
       if(found){
         found.q.status[el.dataset.vendor] = el.value;
         el.dataset.v = el.value;
-        saveState();
+        saveStateToLocal();
+        saveStateToCloud();
         renderScoreBar();
         renderReport();
       }
     });
   });
+
   document.querySelectorAll("[data-note]").forEach(el=>{
     el.addEventListener("input", ()=>{
       const found = findQuestion(el.dataset.note);
@@ -2133,16 +1082,22 @@ function attachRowEvents(){
         found.q.notes[el.dataset.vendor] = el.value;
       }
     });
-    el.addEventListener("blur", ()=>{ saveState(); renderReport(); });
+    el.addEventListener("blur", ()=>{
+      saveStateToLocal();
+      saveStateToCloud();
+      renderReport();
+    });
   });
+
   document.querySelectorAll("[data-del-q]").forEach(el=>{
     el.onclick = ()=>{
-      if(!confirm("确认删除这个问题？")) return;
+      if(!confirm("Are you sure you want to delete this question?")) return;
       const qId = el.dataset.delQ;
       state.categories.forEach(cat=>{
         cat.questions = cat.questions.filter(q=>q.id!==qId);
       });
-      saveState();
+      saveStateToLocal();
+      saveStateToCloud();
       renderCategories();
       renderReport();
     };
@@ -2172,28 +1127,26 @@ function renderScoreBar(){
     const s = computeScore(v);
     return `
     <div class="score-cell">
-      <div class="label">${VENDOR_LABELS[v]} 覆盖度</div>
+      <div class="label">${VENDOR_LABELS[v]} Coverage</div>
       <div class="num">${s.pct}<span style="font-size:14px;color:#8a8474;">%</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${s.pct}%; background:${s.pct>=60?'var(--full)':s.pct>=35?'var(--partial)':'var(--none)'}"></div></div>
       <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅${s.full} ⚠️${s.partial} ❌${s.none} ·未打分${s.unset}
+        ✅${s.full} ⚠️${s.partial} ❌${s.none} · Unrated${s.unset}
       </div>
     </div>`;
   }).join("");
-  bar.innerHTML = `<div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">总分按已打分问题计算：✅=1分 ⚠️=0.5分 ❌=0分，未打分不计入总数</p></div>${cells}`;
+  bar.innerHTML = `<div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Overall score calculated from rated questions: ✅=1 pt, ⚠️=0.5 pts, ❌=0 pts; unrated questions are excluded from total</p></div>${cells}`;
 }
 
-// ---------- Report view ----------
 function renderReport(){
-  // recommend cards
   const scores = {};
   VENDORS.forEach(v=> scores[v]=computeScore(v));
   const ranked = [...VENDORS].sort((a,b)=>scores[b].pct - scores[a].pct);
 
   const fitText = {
-    otterly:"入门试水 / 预算有限团队",
-    profound:"企业级 / 需要深度归因与合规认证",
-    peec:"中端多地区团队 / 需要MCP和多workspace"
+    otterly:"Entry-level testing / teams with limited budget",
+    profound:"Enterprise / needs deep attribution and compliance certifications",
+    peec:"Mid-tier multi-region teams / needs MCP and multi-workspace"
   };
   const highlights = {};
   VENDORS.forEach(v=>{
@@ -2212,15 +1165,14 @@ function renderReport(){
   const grid = document.getElementById("recommendGrid");
   grid.innerHTML = ranked.map((v,i)=>`
     <div class="rec-card ${i===0?'winner':''}">
-      <div class="rank">${i===0?'★ 综合覆盖度最高':'排名 #'+(i+1)}</div>
+      <div class="rank">${i===0?'★ Highest Overall Coverage':'Rank #'+(i+1)}</div>
       <h3>${VENDOR_LABELS[v]}</h3>
-      <div class="fit">适合：${fitText[v]} · 覆盖度 ${scores[v].pct}%</div>
+      <div class="fit">Best for: ${fitText[v]} · Coverage ${scores[v].pct}%</div>
       ${highlights[v].pluses.length?`<ul>${highlights[v].pluses.map(p=>`<li>✅ ${escapeHtml(p)}</li>`).join("")}</ul>`:""}
       ${highlights[v].minuses.length?`<ul style="margin-top:6px;">${highlights[v].minuses.map(p=>`<li style="color:var(--none)">❌ ${escapeHtml(p)}</li>`).join("")}</ul>`:""}
     </div>
   `).join("");
 
-  // full summary table
   const tbody = document.getElementById("reportTableBody");
   let rows = "";
   state.categories.forEach(cat=>{
@@ -2240,73 +1192,133 @@ function renderReport(){
     });
   });
   tbody.innerHTML = rows;
-
-  document.getElementById("reportFooterDate").textContent = "生成于 " + new Date().toLocaleString("zh-CN");
+  document.getElementById("reportFooterDate").textContent = "Generated on " + new Date().toLocaleString("en-US");
 }
 
-// ---------- Tabs ----------
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-  btn.onclick = ()=>{
-    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("view-"+btn.dataset.tab).classList.add("active");
-    if(btn.dataset.tab==="report") renderReport();
-  };
-});
+// ============================================================
+// FIREBASE REAL-TIME LISTENER
+// ============================================================
+function loadFromCloud() {
+  dbRef.on('value', (snapshot) => {
+    const cloudData = snapshot.val();
+    if (cloudData) {
+      const currentStr = JSON.stringify(state);
+      const cloudStr = JSON.stringify(cloudData);
+      if (currentStr !== cloudStr) {
+        isCloudUpdate = true;
+        state = cloudData;
+        saveStateToLocal();
+        renderCategories();
+        renderReport();
+        showSyncStatus('synced', '✅ Synced from cloud');
+        setTimeout(() => { isCloudUpdate = false; }, 500);
+      }
+    }
+    updateConnectionStatus(true);
+  }, (error) => {
+    console.error('Firebase connection error:', error);
+    updateConnectionStatus(false);
+    showSyncStatus('error', '⚠️ Connection lost');
+  });
+}
 
-// ---------- Filters ----------
-document.querySelectorAll(".filter-chip").forEach(chip=>{
-  chip.onclick = ()=>{
-    document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
-    chip.classList.add("active");
-    currentFilter = chip.dataset.filter;
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function init() {
+  state = loadState();
+
+  dbRef.once('value', (snapshot) => {
+    const cloudData = snapshot.val();
+    if (cloudData) {
+      state = cloudData;
+      saveStateToLocal();
+    } else {
+      saveStateToCloud();
+    }
+    renderCategories();
+    renderReport();
+    updateConnectionStatus(true);
+    showSyncStatus('synced', '✅ Ready');
+  }, (error) => {
+    console.error('Error loading from cloud:', error);
+    updateConnectionStatus(false);
+    renderCategories();
+    renderReport();
+  });
+
+  loadFromCloud();
+
+  // Tabs
+  document.querySelectorAll(".tab-btn").forEach(btn=>{
+    btn.onclick = ()=>{
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("view-"+btn.dataset.tab).classList.add("active");
+      if(btn.dataset.tab==="report") renderReport();
+    };
+  });
+
+  // Filters
+  document.querySelectorAll(".filter-chip").forEach(chip=>{
+    chip.onclick = ()=>{
+      document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
+      chip.classList.add("active");
+      currentFilter = chip.dataset.filter;
+      renderCategories();
+    };
+  });
+
+  // Add category
+  document.getElementById("addCatBtn").onclick = ()=>{
+    const input = document.getElementById("newCatInput");
+    const title = input.value.trim();
+    if(!title) return;
+    state.categories.push({
+      id:"cat"+(idCounter++),
+      title,
+      questions:[]
+    });
+    input.value="";
+    saveStateToLocal();
+    saveStateToCloud();
     renderCategories();
   };
-});
-
-// ---------- Add category ----------
-document.getElementById("addCatBtn").onclick = ()=>{
-  const input = document.getElementById("newCatInput");
-  const title = input.value.trim();
-  if(!title) return;
-  state.categories.push({
-    id:"cat"+(idCounter++),
-    title,
-    questions:[]
+  document.getElementById("newCatInput").addEventListener("keydown", e=>{
+    if(e.key==="Enter"){ e.preventDefault(); document.getElementById("addCatBtn").click(); }
   });
-  input.value="";
-  saveState();
-  renderCategories();
-};
-document.getElementById("newCatInput").addEventListener("keydown", e=>{
-  if(e.key==="Enter"){ e.preventDefault(); document.getElementById("addCatBtn").click(); }
-});
 
-// ---------- Export / Reset ----------
-document.getElementById("exportBtn").onclick = ()=>{
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "geo_vendor_comparison.json";
-  a.click();
-  URL.revokeObjectURL(url);
-};
-document.getElementById("resetBtn").onclick = ()=>{
-  if(!confirm("确认重置为默认清单？这会覆盖你所有的修改。")) return;
-  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  saveState();
-  renderCategories();
-  renderReport();
-};
+  // Export
+  document.getElementById("exportBtn").onclick = ()=>{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "geo_vendor_comparison.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-// ---------- Init ----------
-renderCategories();
-renderReport();
+  // Reset
+  document.getElementById("resetBtn").onclick = ()=>{
+    if(!confirm("Are you sure you want to reset to the default list? This will overwrite all your changes.")) return;
+    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    saveStateToLocal();
+    saveStateToCloud();
+    renderCategories();
+    renderReport();
+    showSyncStatus('synced', '✅ Reset complete');
+  };
 
-})();
+  // Force Sync
+  document.getElementById("forceSyncBtn").onclick = ()=>{
+    saveStateToCloud();
+    showSyncStatus('saving', '🔄 Syncing...');
+  };
+}
+
+init();
 </script>
-
-
-<div id="monica-content-root" class="monica-widget" style="pointer-events: auto;"></div></body></html>
+</body>
+</html>
