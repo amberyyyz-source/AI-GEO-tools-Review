@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI GEO Tool Evaluation & Comparison · ZERO Markets</title>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
+<title>AI GEO Tool Evaluation Comparison · ZERO Markets</title>
 <style>
   :root{
     --ink:#1c2321;
@@ -19,7 +12,6 @@
     --accent:#b5482e;
     --accent-2:#2f5d50;
     --gold:#a6812f;
-    --support:ok-full;
     --full:#2f5d50;
     --full-bg:#e3ebe6;
     --partial:#a6812f;
@@ -28,524 +20,105 @@
     --none-bg:#f4e5e0;
     --unrated-bg:#eceae2;
     --mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
-    --serif: 'Source Serif 4', 'Georgia', serif;
-    --sans: 'Inter', '-apple-system', sans-serif;
+    --serif: 'Source Serif 4', 'Noto Serif SC', Georgia, serif;
+    --sans: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
   }
-
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:var(--sans);
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-
-  .masthead{
-    border-bottom:2px solid var(--ink);
-    padding:28px 32px 18px;
-    background:var(--paper);
-    position:sticky;
-    top:0;
-    z-index:50;
-    backdrop-filter: blur(6px);
-  }
-  .masthead-inner{
-    max-width:1240px;
-    margin:0 auto;
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    flex-wrap:wrap;
-    gap:14px;
-  }
-  .kicker{
-    font-family:var(--mono);
-    font-size:11px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--accent);
-    margin-bottom:6px;
-  }
-  h1{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:30px;
-    margin:0;
-    letter-spacing:-0.01em;
-  }
-  .subtitle{
-    font-size:13px;
-    color:#6b6558;
-    margin-top:4px;
-  }
-  .meta-block{
-    text-align:right;
-    font-family:var(--mono);
-    font-size:11px;
-    color:#6b6558;
-    line-height:1.8;
-  }
-
-  .tabs{
-    max-width:1240px;
-    margin:18px auto 0;
-    display:flex;
-    gap:2px;
-    padding:0 32px;
-  }
-  .tab-btn{
-    font-family:var(--mono);
-    font-size:12px;
-    letter-spacing:0.04em;
-    background:none;
-    border:1px solid var(--line);
-    border-bottom:none;
-    padding:10px 18px;
-    cursor:pointer;
-    color:#6b6558;
-    border-radius:6px 6px 0 0;
-    position:relative;
-    top:1px;
-  }
-  .tab-btn.active{
-    background:var(--paper);
-    color:var(--ink);
-    border-color:var(--ink);
-    border-bottom:1px solid var(--paper);
-    font-weight:600;
-  }
-
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;}
+  .masthead{border-bottom:2px solid var(--ink);padding:28px 32px 18px;background:var(--paper);position:sticky;top:0;z-index:50;backdrop-filter: blur(6px);}
+  .masthead-inner{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+  h1{font-family:var(--serif);font-weight:600;font-size:30px;margin:0;letter-spacing:-0.01em;}
+  .subtitle{font-size:13px;color:#6b6558;margin-top:4px;}
+  .meta-block{text-align:right;font-family:var(--mono);font-size:11px;color:#6b6558;line-height:1.8;}
+  .tabs{max-width:1240px;margin:18px auto 0;display:flex;gap:2px;padding:0 32px;}
+  .tab-btn{font-family:var(--mono);font-size:12px;letter-spacing:0.04em;background:none;border:1px solid var(--line);border-bottom:none;padding:10px 18px;cursor:pointer;color:#6b6558;border-radius:6px 6px 0 0;position:relative;top:1px;}
+  .tab-btn.active{background:var(--paper);color:var(--ink);border-color:var(--ink);border-bottom:1px solid var(--paper);font-weight:600;}
   .view{ display:none; max-width:1240px; margin:0 auto; padding:28px 32px 80px; }
   .view.active{ display:block; }
-
-  .vendor-strip{
-    display:grid;
-    grid-template-columns:1.4fr repeat(3, 1fr);
-    gap:14px;
-    margin-bottom:28px;
-  }
-  .vendor-card{
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:16px 18px;
-    background:var(--paper-2);
-  }
-  .vendor-card.head{
-    background:transparent;
-    border:none;
-    display:flex;
-    align-items:flex-end;
-  }
-  .vendor-card.head p{
-    font-size:13px;
-    color:#6b6558;
-    margin:0;
-  }
-  .vendor-name{
-    font-family:var(--serif);
-    font-size:18px;
-    font-weight:600;
-    margin:0 0 4px;
-  }
-  .vendor-url{
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--accent-2);
-    text-decoration:none;
-  }
-  .vendor-tag{
-    display:inline-block;
-    margin-top:10px;
-    font-family:var(--mono);
-    font-size:10.5px;
-    padding:3px 8px;
-    border-radius:20px;
-    background:#fff;
-    border:1px solid var(--line);
-    color:#6b6558;
-  }
-
-  .score-bar{
-    display:grid;
-    grid-template-columns:1.4fr repeat(3, 1fr);
-    gap:14px;
-    margin-bottom:10px;
-  }
-  .score-cell{
-    border:1px solid var(--line-soft);
-    border-radius:10px;
-    padding:14px 16px;
-    background:#fff;
-  }
-  .score-cell .label{
-    font-family:var(--mono);
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:#8a8474;
-  }
-  .score-cell .num{
-    font-family:var(--serif);
-    font-size:26px;
-    font-weight:600;
-    margin-top:2px;
-  }
-  .score-cell .bar-track{
-    height:5px;
-    background:var(--line-soft);
-    border-radius:4px;
-    margin-top:8px;
-    overflow:hidden;
-  }
-  .score-cell .bar-fill{
-    height:100%;
-    border-radius:4px;
-    background:var(--accent-2);
-    transition:width .4s ease;
-  }
-
-  .controls{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:10px;
-    margin:26px 0 12px;
-  }
+  .vendor-strip{display:grid;grid-template-columns:1.4fr repeat(3, 1fr);gap:14px;margin-bottom:28px;}
+  .vendor-card{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--paper-2);}
+  .vendor-card.head{background:transparent;border:none;display:flex;align-items:flex-end;}
+  .vendor-card.head p{font-size:13px;color:#6b6558;margin:0;}
+  .vendor-name{font-family:var(--serif);font-size:18px;font-weight:600;margin:0 0 4px;}
+  .vendor-url{font-family:var(--mono);font-size:11px;color:var(--accent-2);text-decoration:none;}
+  .vendor-tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:20px;background:#fff;border:1px solid var(--line);color:#6b6558;}
+  .score-bar{display:grid;grid-template-columns:1.4fr repeat(3, 1fr);gap:14px;margin-bottom:10px;}
+  .score-cell{border:1px solid var(--line-soft);border-radius:10px;padding:14px 16px;background:#fff;}
+  .score-cell .label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#8a8474;}
+  .score-cell .num{font-family:var(--serif);font-size:26px;font-weight:600;margin-top:2px;}
+  .score-cell .bar-track{height:5px;background:var(--line-soft);border-radius:4px;margin-top:8px;overflow:hidden;}
+  .score-cell .bar-fill{height:100%;border-radius:4px;background:var(--accent-2);transition:width .4s ease;}
+  .controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin:26px 0 12px;}
   .controls .left{ display:flex; gap:8px; flex-wrap:wrap; }
-  .filter-chip{
-    font-family:var(--mono);
-    font-size:11px;
-    border:1px solid var(--line);
-    background:#fff;
-    padding:6px 12px;
-    border-radius:20px;
-    cursor:pointer;
-    color:#6b6558;
-  }
-  .filter-chip.active{
-    background:var(--ink);
-    color:var(--paper);
-    border-color:var(--ink);
-  }
-  .btn{
-    font-family:var(--mono);
-    font-size:11.5px;
-    border:1px solid var(--ink);
-    background:var(--ink);
-    color:var(--paper);
-    padding:8px 14px;
-    border-radius:6px;
-    cursor:pointer;
-  }
-  .btn.ghost{
-    background:transparent;
-    color:var(--ink);
-  }
+  .filter-chip{font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:#fff;padding:6px 12px;border-radius:20px;cursor:pointer;color:#6b6558;}
+  .filter-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .btn{font-family:var(--mono);font-size:11.5px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:6px;cursor:pointer;}
+  .btn.ghost{background:transparent;color:var(--ink);}
   .btn.small{ padding:5px 10px; font-size:10.5px; }
-
-  .category{
-    margin-bottom:6px;
-    border:1px solid var(--line);
-    border-radius:12px;
-    overflow:hidden;
-    background:#fff;
-  }
-  .category-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:14px 18px;
-    background:var(--paper-2);
-    cursor:pointer;
-    user-select:none;
-  }
-  .category-head .title{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:15.5px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-  .category-head .cat-index{
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--accent);
-    border:1px solid var(--accent);
-    border-radius:50%;
-    width:22px;height:22px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .category-head .chevron{
-    font-family:var(--mono);
-    font-size:12px;
-    color:#8a8474;
-    transition:transform .2s ease;
-  }
+  .category{margin-bottom:6px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+  .category-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--paper-2);cursor:pointer;user-select:none;}
+  .category-head .title{font-family:var(--serif);font-weight:600;font-size:15.5px;display:flex;align-items:center;gap:10px;}
+  .category-head .cat-index{font-family:var(--mono);font-size:11px;color:var(--accent);border:1px solid var(--accent);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+  .category-head .chevron{font-family:var(--mono);font-size:12px;color:#8a8474;transition:transform .2s ease;}
   .category.collapsed .chevron{ transform:rotate(-90deg); }
   .category.collapsed .cat-body{ display:none; }
-
-  .add-q-row{
-    padding:10px 18px;
-    background:#fbfaf6;
-    border-top:1px dashed var(--line);
-    display:flex;
-    gap:8px;
-  }
-  .add-q-row input{
-    flex:1;
-    font-family:var(--sans);
-    font-size:12.5px;
-    padding:7px 10px;
-    border:1px solid var(--line);
-    border-radius:6px;
-    background:#fff;
-  }
-
-  table{
-    width:100%;
-    border-collapse:collapse;
-  }
-  thead th{
-    font-family:var(--mono);
-    font-size:10.5px;
-    text-transform:uppercase;
-    letter-spacing:0.05em;
-    color:#8a8474;
-    text-align:left;
-    padding:9px 12px;
-    border-bottom:1px solid var(--line);
-    background:#fbfaf6;
-  }
+  .add-q-row{padding:10px 18px;background:#fbfaf6;border-top:1px dashed var(--line);display:flex;gap:8px;}
+  .add-q-row input{flex:1;font-family:var(--sans);font-size:12.5px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;color:#8a8474;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);background:#fbfaf6;}
   thead th.q-col{ width:30%; }
   thead th.v-col{ width:20%; text-align:center; }
   thead th.actions-col{ width:6%; }
-
-  tbody td{
-    padding:12px;
-    border-bottom:1px solid var(--line-soft);
-    vertical-align:top;
-    font-size:13px;
-  }
+  tbody td{padding:12px;border-bottom:1px solid var(--line-soft);vertical-align:top;font-size:13px;}
   tbody tr:last-child td{ border-bottom:none; }
   tbody tr:hover{ background:#fbfaf6; }
-
-  .q-text{
-    display:flex;
-    gap:8px;
-    align-items:flex-start;
-  }
-  .q-priority{
-    flex-shrink:0;
-    margin-top:3px;
-    width:8px;height:8px;
-    border-radius:50%;
-    background:var(--line);
-    cursor:pointer;
-  }
+  .q-text{display:flex;gap:8px;align-items:flex-start;}
+  .q-priority{flex-shrink:0;margin-top:3px;width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;}
   .q-priority.on{ background:var(--accent); }
-  .q-editable{
-    outline:none;
-    border-bottom:1px dashed transparent;
-    min-width:120px;
-  }
+  .q-editable{outline:none;border-bottom:1px dashed transparent;min-width:120px;}
   .q-editable:hover{ border-bottom-color:var(--line); }
   .q-editable:focus{ border-bottom-color:var(--accent); background:#fff7ed; }
-
-  .row-del{
-    background:none;
-    border:none;
-    color:#c9c3b3;
-    font-size:15px;
-    cursor:pointer;
-    line-height:1;
-  }
+  .row-del{background:none;border:none;color:#c9c3b3;font-size:15px;cursor:pointer;line-height:1;}
   .row-del:hover{ color:var(--none); }
-
   .status-wrap{ display:flex; flex-direction:column; gap:6px; align-items:center; }
-  .status-select{
-    font-family:var(--sans);
-    font-size:12px;
-    font-weight:600;
-    padding:6px 10px;
-    border-radius:20px;
-    border:1px solid transparent;
-    cursor:pointer;
-    text-align:center;
-    width:100%;
-    max-width:150px;
-    appearance:none;
-    -webkit-appearance:none;
-    background-position:right 8px center;
-    background-repeat:no-repeat;
-  }
+  .status-select{font-family:var(--sans);font-size:12px;font-weight:600;padding:6px 10px;border-radius:20px;border:1px solid transparent;cursor:pointer;text-align:center;width:100%;max-width:150px;appearance:none;-webkit-appearance:none;background-position:right 8px center;background-repeat:no-repeat;}
   .status-select[data-v="full"]{ background-color:var(--full-bg); color:var(--full); border-color:#c3d8cc; }
   .status-select[data-v="partial"]{ background-color:var(--partial-bg); color:var(--partial); border-color:#e0d3a8; }
   .status-select[data-v="none"]{ background-color:var(--none-bg); color:var(--none); border-color:#e3c2b8; }
   .status-select[data-v="unset"]{ background-color:var(--unrated-bg); color:#9a9484; border-color:var(--line); }
-
-  .note-input{
-    width:100%;
-    max-width:150px;
-    font-size:11.5px;
-    font-family:var(--sans);
-    color:#6b6558;
-    border:none;
-    background:transparent;
-    resize:none;
-    text-align:center;
-    outline:none;
-    padding:2px 4px;
-    border-radius:4px;
-  }
+  .note-input{width:100%;max-width:150px;font-size:11.5px;font-family:var(--sans);color:#6b6558;border:none;background:transparent;resize:none;text-align:center;outline:none;padding:2px 4px;border-radius:4px;}
   .note-input:hover, .note-input:focus{ background:#fff; box-shadow:0 0 0 1px var(--line) inset; }
   .note-input::placeholder{ color:#c9c3b3; }
-
-  .add-cat-row{
-    display:flex;
-    gap:8px;
-    margin-top:16px;
-  }
-  .add-cat-row input{
-    flex:1;
-    font-family:var(--sans);
-    font-size:13px;
-    padding:10px 14px;
-    border:1px solid var(--line);
-    border-radius:8px;
-  }
-
-  .report-hero{
-    border:1px solid var(--ink);
-    border-radius:12px;
-    padding:26px 28px;
-    margin-bottom:20px;
-    background:linear-gradient(135deg, #fff 0%, var(--paper-2) 100%);
-  }
-  .report-hero h2{
-    font-family:var(--serif);
-    font-size:22px;
-    margin:0 0 6px;
-  }
+  .add-cat-row{display:flex;gap:8px;margin-top:16px;}
+  .add-cat-row input{flex:1;font-family:var(--sans);font-size:13px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;}
+  .report-hero{border:1px solid var(--ink);border-radius:12px;padding:26px 28px;margin-bottom:20px;background:linear-gradient(135deg, #fff 0%, var(--paper-2) 100%);}
+  .report-hero h2{font-family:var(--serif);font-size:22px;margin:0 0 6px;}
   .report-hero p{ font-size:13.5px; color:#5c5648; margin:0; max-width:760px;}
-
-  .recommend-grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:14px;
-    margin:20px 0 30px;
-  }
-  .rec-card{
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:16px;
-    background:#fff;
-  }
-  .rec-card.winner{
-    border:1.5px solid var(--accent-2);
-    background:var(--full-bg);
-  }
-  .rec-card .rank{
-    font-family:var(--mono);
-    font-size:10px;
-    color:var(--accent-2);
-    letter-spacing:0.08em;
-  }
-  .rec-card h3{
-    font-family:var(--serif);
-    font-size:16px;
-    margin:4px 0 8px;
-  }
+  .recommend-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:14px;margin:20px 0 30px;}
+  .rec-card{border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff;}
+  .rec-card.winner{border:1.5px solid var(--accent-2);background:var(--full-bg);}
+  .rec-card .rank{font-family:var(--mono);font-size:10px;color:var(--accent-2);letter-spacing:0.08em;}
+  .rec-card h3{font-family:var(--serif);font-size:16px;margin:4px 0 8px;}
   .rec-card .fit{ font-size:12px; color:#5c5648; margin-bottom:10px; }
   .rec-card ul{ margin:0; padding-left:16px; font-size:12px; color:#5c5648; }
   .rec-card li{ margin-bottom:4px; }
-
-  .summary-table-wrap{
-    border:1px solid var(--line);
-    border-radius:12px;
-    overflow:hidden;
-    background:#fff;
-    margin-bottom:24px;
-  }
+  .summary-table-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin-bottom:24px;}
   .summary-table-wrap table thead th{ background:var(--ink); color:var(--paper); }
-  .cell-status{
-    display:inline-block;
-    font-size:11px;
-    font-weight:600;
-    padding:4px 10px;
-    border-radius:20px;
-  }
+  .cell-status{display:inline-block;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
   .cell-status.full{ background:var(--full-bg); color:var(--full); }
   .cell-status.partial{ background:var(--partial-bg); color:var(--partial); }
   .cell-status.none{ background:var(--none-bg); color:var(--none); }
   .cell-status.unset{ background:var(--unrated-bg); color:#9a9484; }
   .cell-note{ display:block; font-size:10.5px; color:#8a8474; margin-top:3px; max-width:180px; }
-
-  .gap-list{
-    border:1px solid var(--none);
-    border-radius:12px;
-    padding:18px 20px;
-    background:var(--none-bg);
-    margin-bottom:24px;
-  }
-  .gap-list h3{
-    font-family:var(--serif);
-    font-size:15px;
-    margin:0 0 10px;
-    color:#7a2e1c;
-  }
+  .gap-list{border:1px solid var(--none);border-radius:12px;padding:18px 20px;background:var(--none-bg);margin-bottom:24px;}
+  .gap-list h3{font-family:var(--serif);font-size:15px;margin:0 0 10px;color:#7a2e1c;}
   .gap-list ul{ margin:0; padding-left:18px; font-size:12.5px; color:#5c3025; }
   .gap-list li{ margin-bottom:6px; }
-
-  footer{
-    max-width:1240px;
-    margin:0 auto;
-    padding:20px 32px 60px;
-    font-family:var(--mono);
-    font-size:10.5px;
-    color:#a39d8c;
-    display:flex;
-    justify-content:space-between;
-  }
-
-  @media print{
-    .tabs, .controls, .add-q-row, .add-cat-row, .btn{ display:none !important; }
-    .view{ display:block !important; }
-  }
-
-  @media (max-width:900px){
-    .vendor-strip, .score-bar{ grid-template-columns:1fr; }
-    .recommend-grid{ grid-template-columns:1fr; }
-    table, thead, tbody, tr{ display:block; }
-    thead{ display:none; }
-    tbody td{ display:flex; justify-content:space-between; align-items:center; border-bottom:none; padding:8px 12px; }
-    tbody td::before{ content: attr(data-label); font-family:var(--mono); font-size:10px; color:#8a8474; margin-right:10px; }
-    tbody tr{ border-bottom:1px solid var(--line-soft); padding:6px 0; }
-  }
-
-  #syncStatus {
-    position: fixed; bottom: 20px; right: 20px;
-    background: #2f5d50; color: white;
-    padding: 10px 18px; border-radius: 8px;
-    font-family: monospace; font-size: 13px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: opacity 0.3s ease; opacity: 0;
-    z-index: 999;
-  }
-  #syncStatus.synced { background: #2f5d50; }
-  #syncStatus.saving { background: #a6812f; }
-  #syncStatus.error { background: #b5482e; }
-  .online-badge {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-  .online-badge.online { background: #2f5d50; }
-  .online-badge.offline { background: #b5482e; }
+  footer{max-width:1240px;margin:0 auto;padding:20px 32px 60px;font-family:var(--mono);font-size:10.5px;color:#a39d8c;display:flex;justify-content:space-between;}
+  @media print{ .tabs, .controls, .add-q-row, .add-cat-row, .btn{ display:none !important; } .view{ display:block !important; } }
+  @media (max-width:900px){ .vendor-strip, .score-bar{ grid-template-columns:1fr; } .recommend-grid{ grid-template-columns:1fr; } table, thead, tbody, tr{ display:block; } thead{ display:none; } tbody td{ display:flex; justify-content:space-between; align-items:center; border-bottom:none; padding:8px 12px; } tbody td::before{ content: attr(data-label); font-family:var(--mono); font-size:10px; color:#8a8474; margin-right:10px; } tbody tr{ border-bottom:1px solid var(--line-soft); padding:6px 0; } }
 </style>
 </head>
 <body>
@@ -554,23 +127,20 @@
   <div class="masthead-inner">
     <div>
       <div class="kicker">Vendor Evaluation · Internal</div>
-      <h1>AI GEO Tool Evaluation & Comparison</h1>
+      <h1>AI GEO Tracking Tool Evaluation Comparison</h1>
       <div class="subtitle">Otterly.ai · Profound · Peec.ai — ZERO Markets GEO Tool Research</div>
-    </div>
-    <div style="font-family:var(--mono);font-size:11px;color:#6b6558;">
-      <span id="connectionStatus"><span class="online-badge offline" id="statusDot"></span><span id="statusText">Connecting...</span></span>
     </div>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-tab="compare">Comparison Worksheet</button>
-    <button class="tab-btn" data-tab="report">Summary Report</button>
+    <button class="tab-btn" data-tab="report">Summary View</button>
   </div>
 </div>
 
-<!-- COMPARE VIEW -->
 <div class="view active" id="view-compare">
+
   <div class="vendor-strip">
-    <div class="vendor-card head"><p>Three vendors — score item by item. Click status labels to toggle, notes are editable. <strong>All changes sync to cloud in real-time.</strong></p></div>
+    <div class="vendor-card head"><p>Three vendors — score item by item, click status tags to toggle, notes can be typed directly. All changes are auto-saved in your local browser.</p></div>
     <div class="vendor-card">
       <div class="vendor-name">Otterly.ai</div>
       <a class="vendor-url" href="https://otterly.ai" target="_blank">otterly.ai</a>
@@ -588,42 +158,986 @@
     </div>
   </div>
 
-  <div class="score-bar" id="scoreBar">
-    <div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Overall score calculated from rated questions: ✅=1 pt, ⚠️=0.5 pts, ❌=0 pts; unrated questions are excluded from total</p></div>
-    <div class="score-cell"><div class="label">Otterly.ai Coverage</div><div class="num">33<span style="font-size:14px;color:#8a8474;">%</span></div><div class="bar-track"><div class="bar-fill" style="width:33%; background:var(--none)"></div></div><div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">✅3 ⚠️6 ❌2 · Unrated7</div></div>
-    <div class="score-cell"><div class="label">Profound Coverage</div><div class="num">33<span style="font-size:14px;color:#8a8474;">%</span></div><div class="bar-track"><div class="bar-fill" style="width:33%; background:var(--none)"></div></div><div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">✅4 ⚠️4 ❌1 · Unrated9</div></div>
-    <div class="score-cell"><div class="label">Peec.ai Coverage</div><div class="num">47<span style="font-size:14px;color:#8a8474;">%</span></div><div class="bar-track"><div class="bar-fill" style="width:47%; background:var(--partial)"></div></div><div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">✅7 ⚠️3 ❌1 · Unrated7</div></div>
-  </div>
+  <div class="score-bar" id="scoreBar"><div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Score is calculated from all questions: ✅=1pt ⚠️=0.5pt ❌=0pt, unrated counts as 0</p></div>
+    <div class="score-cell">
+      <div class="label">Otterly.ai Coverage</div>
+      <div class="num">26<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:26%; background:var(--none)"></div></div>
+      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
+        ✅4 ⚠️2 ❌1 ·Unrated12
+      </div>
+    </div>
+    <div class="score-cell">
+      <div class="label">Profound Coverage</div>
+      <div class="num">24<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:24%; background:var(--none)"></div></div>
+      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
+        ✅3 ⚠️3 ❌1 ·Unrated12
+      </div>
+    </div>
+    <div class="score-cell">
+      <div class="label">Peec.ai Coverage</div>
+      <div class="num">29<span style="font-size:14px;color:#8a8474;">%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:29%; background:var(--none)"></div></div>
+      <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
+        ✅5 ⚠️1 ❌1 ·Unrated12
+      </div>
+    </div></div>
 
   <div class="controls">
     <div class="left">
       <button class="filter-chip active" data-filter="all">All Questions</button>
-      <button class="filter-chip" data-filter="priority">Priority Questions Only ●</button>
+      <button class="filter-chip" data-filter="priority">Priority Only ●</button>
       <button class="filter-chip" data-filter="unrated">Unrated Only</button>
     </div>
     <div>
       <button class="btn ghost small" id="exportBtn">Export JSON</button>
       <button class="btn ghost small" id="resetBtn">Reset to Default List</button>
-      <button class="btn ghost small" id="forceSyncBtn">Force Sync</button>
     </div>
   </div>
 
-  <div id="categoriesRoot"></div>
+  <div id="categoriesRoot"><div class="category" data-cat-id="cat-engine">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">1</span> A. AI Engine Coverage &amp; Multilingual Support</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q1">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q1" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q1">Which AI engines are included in the base plan? Which require add-ons?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q1" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q1" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q1" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q1" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q1" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q1" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q1" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q2">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q2" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q2">Can you give a live demonstration of the real-time query tracking effect for English queries?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q2" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q2" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q2" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q2" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q2" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q2" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q2" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q3">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q3" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q3">Which regions and languages are supported? Is there an additional charge for multi-region / multi-language tracking?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q3" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q3" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q3" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q3" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q3" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q3" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q3" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " a.="" ai="" engine="" coverage="" &amp;="" multilingual="" support"…"="" data-add-q="cat-engine">
+          <button class="btn small" data-add-q-btn="cat-engine">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-ai-visibility">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">2</span> B. AI-Side Visibility Capabilities</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q4">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q4" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q4">Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q4" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q4" data-vendor="otterly">Core feature, CSV export</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q4" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q4" data-vendor="profound">Core feature, week-over-week</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q4" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q4" data-vendor="peec">Core feature, 7/14/30-day windows + custom</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q4" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q5">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q5" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q5">Can you see exactly which domain/article was cited by AI, along with the full citation context?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q5" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q5" data-vendor="otterly">Domain ranking analysis</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q5" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q5" data-vendor="profound">Conversation Explorer shows full conversation context</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q5" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q5" data-vendor="peec">Sources categorized by type (competitor/brand/UGC/editorial)</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q5" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q6">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q6" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q6">When AI cites our content, can you pinpoint exactly which page/paragraph was cited or paraphrased?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q6" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q6" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q6" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q6" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q6" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q6" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q6" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q7">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q7" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q7">Live-checking an actual brand — can you demonstrate on the spot whether AI's tone is positive/neutral/negative?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q7" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q7" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q7" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q7" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q7" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q7" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q7" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q1782921005071">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q1782921005071" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q1782921005071">Can you help us identify which third-party websites or media outlets are most frequently cited by AI engines under our industry-specific keywords?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q1782921005071" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q1782921005071" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q1782921005071" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q1782921005071" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q1782921005071" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q1782921005071" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q1782921005071" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " b.="" ai-side="" visibility="" capabilities"…"="" data-add-q="cat-ai-visibility">
+          <button class="btn small" data-add-q-btn="cat-ai-visibility">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-attribution">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">3</span> C. Traffic Attribution &amp; ROI</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q8">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q8" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q8">Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="none" data-status-select="q8" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none" selected="">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q8" data-vendor="otterly">No native traffic attribution, only CSV export + Looker Studio connector</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="partial" data-status-select="q8" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q8" data-vendor="profound">Agent Analytics can do attribution, but depends on CDN integration (Akamai/CloudFront/Cloudflare); may not work for sites without matching architecture</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="none" data-status-select="q8" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none" selected="">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q8" data-vendor="peec">No native GA4 integration, only Looker Studio (Advanced tier and above) + CSV export</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q8" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q9">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q9" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q9">If native attribution isn't available, is there a methodology/case study showing correlation between mention rate and actual traffic?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q9" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q9" data-vendor="otterly">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q9" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q9" data-vendor="profound">Will ask during the call; Ramp/CRS etc. have public case studies for reference</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q9" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q9" data-vendor="peec">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q9" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " c.="" traffic="" attribution="" &amp;="" roi"…"="" data-add-q="cat-attribution">
+          <button class="btn small" data-add-q-btn="cat-attribution">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-methodology">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">4</span> D. Data Methodology</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q10">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q10" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q10">Is data collected via official APIs or simulated web scraping? How often is it updated?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="partial" data-status-select="q10" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q10" data-vendor="otterly">Third-party review indicates it's web scraping rather than an official API; updated daily</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="partial" data-status-select="q10" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q10" data-vendor="profound">Structured prompts run daily; specific methodology to be confirmed</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="partial" data-status-select="q10" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q10" data-vendor="peec">Officially confirmed as UI scraping that simulates real browser sessions (not API sampling), claimed to more closely match what real users see</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q10" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q11">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q11" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q11">Does querying the same prompt multiple times produce fluctuating results? How is this instability handled?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q11" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q11" data-vendor="otterly">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q11" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q11" data-vendor="profound">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q11" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q11" data-vendor="peec">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q11" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " d.="" data="" methodology"…"="" data-add-q="cat-methodology">
+          <button class="btn small" data-add-q-btn="cat-methodology">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-competitor">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">5</span> E. Competitors &amp; Alerts</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q12">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q12" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q12">Can you track long-tail keywords and compare our Share of Voice against competitors?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q12" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q12" data-vendor="otterly">Standard feature</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q12" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q12" data-vendor="profound">Standard feature, filterable by LLM/competitor/prompt</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q12" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q12" data-vendor="peec">Add Brands feature, competitor comparison under the same prompt</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q12" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q13">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q13" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q13">Can you set up automatic alerts for negative/risk-related keywords?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q13" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q13" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q13" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q13" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q13" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q13" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q13" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " e.="" competitors="" &amp;="" alerts"…"="" data-add-q="cat-competitor">
+          <button class="btn small" data-add-q-btn="cat-competitor">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-content">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">6</span> F. Actionable Optimization Recommendations</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q14">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q14" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q14">What features are available to help with optimization?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q14" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q14" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q14" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q14" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q14" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q14" data-vendor="peec"></textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q14" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " f.="" actionable="" optimization="" recommendations"…"="" data-add-q="cat-content">
+          <button class="btn small" data-add-q-btn="cat-content">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-team">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">7</span> G. Team Collaboration &amp; Integration</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q15">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q15" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q15">Does it support multi-user permissions and multi-region workspaces?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q15" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q15" data-vendor="otterly">Agency tier supports Workspace Management + unlimited team members</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="none" data-status-select="q15" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none" selected="">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q15" data-vendor="profound">⚠️ No multi-account support; reviews call this out as a weakness unsuited to agency/multi-brand use cases</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q15" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q15" data-vendor="peec">All plans include unlimited seats, billed per workspace rather than per head — suitable for multi-region teams</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q15" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q16">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q16" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q16">Is there a public API/MCP? Which plan tier is required?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="partial" data-status-select="q16" data-vendor="otterly">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q16" data-vendor="otterly">Already has an official MCP server + public API + Claude Skill, but requires Standard tier ($189) or above</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="partial" data-status-select="q16" data-vendor="profound">
+            <option value="unset">Unrated</option><option value="full">✅ Full Support</option><option value="partial" selected="">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q16" data-vendor="profound">API is Enterprise-exclusive; Lite tier has no API</textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="full" data-status-select="q16" data-vendor="peec">
+            <option value="unset">Unrated</option><option value="full" selected="">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q16" data-vendor="peec">API included in all tiers, plus an MCP endpoint connecting to Claude/Cursor/n8n</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q16" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " g.="" team="" collaboration="" &amp;="" integration"…"="" data-add-q="cat-team">
+          <button class="btn small" data-add-q-btn="cat-team">Add</button>
+        </div>
+      </div>
+    </div><div class="category" data-cat-id="cat-trial">
+      <div class="category-head">
+        <div class="title"><span class="cat-index">8</span> H. Trial Arrangements</div>
+        <div class="chevron">▾</div>
+      </div>
+      <div class="cat-body">
+        <table>
+          <thead>
+            <tr>
+              <th class="q-col">Question</th>
+              <th class="v-col">Otterly.ai</th>
+              <th class="v-col">Profound</th>
+              <th class="v-col">Peec.ai</th>
+              <th class="actions-col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            
+  <tr data-q-id="q17">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority on" data-priority-toggle="q17" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q17">How many days is the trial, which plan tier's quota does it provide, and is a credit card required?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q17" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q17" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q17" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q17" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q17" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q17" data-vendor="peec">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q17" title="Delete this question">✕</button></td>
+  </tr>
+  <tr data-q-id="q18">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority " data-priority-toggle="q18" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="q18">After the trial ends, can you get a benchmark report? Is the data exportable?</div>
+      </div>
+    </td>
+    
+      <td data-label="Otterly.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q18" data-vendor="otterly">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q18" data-vendor="otterly"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Profound">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q18" data-vendor="profound">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q18" data-vendor="profound"></textarea>
+        </div>
+      </td>
+    
+      <td data-label="Peec.ai">
+        <div class="status-wrap">
+          <select class="status-select" data-v="unset" data-status-select="q18" data-vendor="peec">
+            <option value="unset" selected="">Unrated</option><option value="full">✅ Full Support</option><option value="partial">⚠️ Partial Support</option><option value="none">❌ No Support</option>
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="q18" data-vendor="peec">Will ask during the call</textarea>
+        </div>
+      </td>
+    
+    <td data-label=""><button class="row-del" data-del-q="q18" title="Delete this question">✕</button></td>
+  </tr>
+          </tbody>
+        </table>
+        <div class="add-q-row">
+          <input type="text" placeholder="+ Add a new question under " h.="" trial="" arrangements"…"="" data-add-q="cat-trial">
+          <button class="btn small" data-add-q-btn="cat-trial">Add</button>
+        </div>
+      </div>
+    </div></div>
 
   <div class="add-cat-row">
-    <input type="text" id="newCatInput" placeholder="+ Add a new question category, e.g., 'Compliance & Data Security'…">
+    <input type="text" id="newCatInput" placeholder="+ Add a new question category, e.g. " compliance="" &="" data="" security"…"="">
     <button class="btn" id="addCatBtn">Add Category</button>
   </div>
 </div>
 
-<!-- REPORT VIEW -->
 <div class="view" id="view-report">
   <div class="report-hero">
-    <h2>Executive Summary: Three AI GEO Tools Comparison</h2>
-    <p>Based on three vendor communications, cross-verified with public documentation, and actual trials. Evaluated across key dimensions including engine coverage, sentiment analysis, traffic attribution, and data methodology. Conclusions update automatically when changes are made in the Comparison Worksheet.</p>
+    <h2>Report Summary: Comparison of Three AI GEO Tools</h2>
+    <p>Based on three rounds of platform calls + cross-verification against official materials + hands-on trials, evaluated across engine coverage, sentiment analysis, traffic attribution, data methodology, and other key dimensions. The conclusions below update automatically as the "Comparison Worksheet" is edited.</p>
   </div>
 
-  <div class="recommend-grid" id="recommendGrid"></div>
+  <div class="recommend-grid" id="recommendGrid">
+    <div class="rec-card winner">
+      <div class="rank">★ Highest Overall Coverage</div>
+      <h3>Peec.ai</h3>
+      <div class="fit">Best for: Mid-tier multi-region teams / needing MCP and multiple workspaces · Coverage 29%</div>
+      <ul><li>✅ Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</li><li>✅ Can you see exactly which domain/article was cited by AI, along with the full citation context?</li><li>✅ Can you track long-tail keywords and compare our Share of Voice against competitors?</li></ul>
+      <ul style="margin-top:6px;"><li style="color:var(--none)">❌ Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</li></ul>
+    </div>
+  
+    <div class="rec-card ">
+      <div class="rank">Rank #2</div>
+      <h3>Otterly.ai</h3>
+      <div class="fit">Best for: Entry-level trial / budget-constrained teams · Coverage 26%</div>
+      <ul><li>✅ Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</li><li>✅ Can you see exactly which domain/article was cited by AI, along with the full citation context?</li><li>✅ Can you track long-tail keywords and compare our Share of Voice against competitors?</li></ul>
+      <ul style="margin-top:6px;"><li style="color:var(--none)">❌ Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</li></ul>
+    </div>
+  
+    <div class="rec-card ">
+      <div class="rank">Rank #3</div>
+      <h3>Profound</h3>
+      <div class="fit">Best for: Enterprise / needing deep attribution and compliance certification · Coverage 24%</div>
+      <ul><li>✅ Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</li><li>✅ Can you see exactly which domain/article was cited by AI, along with the full citation context?</li><li>✅ Can you track long-tail keywords and compare our Share of Voice against competitors?</li></ul>
+      <ul style="margin-top:6px;"><li style="color:var(--none)">❌ Does it support multi-user permissions and multi-region workspaces?</li></ul>
+    </div>
+  </div>
 
   <div class="summary-table-wrap">
     <table>
@@ -635,113 +1149,318 @@
           <th style="width:22%; text-align:center;">Peec.ai</th>
         </tr>
       </thead>
-      <tbody id="reportTableBody"></tbody>
+      <tbody id="reportTableBody"><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">A. AI Engine Coverage &amp; Multilingual Support</td></tr><tr>
+        <td>● Which AI engines are included in the base plan? Which require add-ons?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr>
+        <td>● Can you give a live demonstration of the real-time query tracking effect for English queries?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr>
+        <td>Which regions and languages are supported? Is there an additional charge for multi-region / multi-language tracking?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">B. AI-Side Visibility Capabilities</td></tr><tr>
+        <td>● Can you export brand mention counts and share-of-voice trends over a time period in AI responses?</td>
+        <td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Core feature, CSV export</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Core feature, week-over-week</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Core feature, 7/14/30-day windows + custom</span>
+          </td>
+      </tr><tr>
+        <td>● Can you see exactly which domain/article was cited by AI, along with the full citation context?</td>
+        <td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Domain ranking analysis</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Conversation Explorer shows full conversation context</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Sources categorized by type (competitor/brand/UGC/editorial)</span>
+          </td>
+      </tr><tr>
+        <td>When AI cites our content, can you pinpoint exactly which page/paragraph was cited or paraphrased?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr>
+        <td>● Live-checking an actual brand — can you demonstrate on the spot whether AI's tone is positive/neutral/negative?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr>
+        <td>Can you help us identify which third-party websites or media outlets are most frequently cited by AI engines under our industry-specific keywords?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">C. Traffic Attribution &amp; ROI</td></tr><tr>
+        <td>● Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?</td>
+        <td style="text-align:center;">
+            <span class="cell-status none">❌ No Support</span>
+            <span class="cell-note">No native traffic attribution, only CSV export + Looker Studio connector</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status partial">⚠️ Partial Support</span>
+            <span class="cell-note">Agent Analytics can do attribution, but depends on CDN integration (Akamai/CloudFront/Cloudflare); may not work for sites without matching architecture</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status none">❌ No Support</span>
+            <span class="cell-note">No native GA4 integration, only Looker Studio (Advanced tier and above) + CSV export</span>
+          </td>
+      </tr><tr>
+        <td>● If native attribution isn't available, is there a methodology/case study showing correlation between mention rate and actual traffic?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call; Ramp/CRS etc. have public case studies for reference</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">D. Data Methodology</td></tr><tr>
+        <td>● Is data collected via official APIs or simulated web scraping? How often is it updated?</td>
+        <td style="text-align:center;">
+            <span class="cell-status partial">⚠️ Partial Support</span>
+            <span class="cell-note">Third-party review indicates it's web scraping rather than an official API; updated daily</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status partial">⚠️ Partial Support</span>
+            <span class="cell-note">Structured prompts run daily; specific methodology to be confirmed</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status partial">⚠️ Partial Support</span>
+            <span class="cell-note">Officially confirmed as UI scraping that simulates real browser sessions (not API sampling), claimed to more closely match what real users see</span>
+          </td>
+      </tr><tr>
+        <td>Does querying the same prompt multiple times produce fluctuating results? How is this instability handled?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">E. Competitors &amp; Alerts</td></tr><tr>
+        <td>Can you track long-tail keywords and compare our Share of Voice against competitors?</td>
+        <td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Standard feature</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Standard feature, filterable by LLM/competitor/prompt</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Add Brands feature, competitor comparison under the same prompt</span>
+          </td>
+      </tr><tr>
+        <td>● Can you set up automatic alerts for negative/risk-related keywords?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">F. Actionable Optimization Recommendations</td></tr><tr>
+        <td>What features are available to help with optimization?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">G. Team Collaboration &amp; Integration</td></tr><tr>
+        <td>Does it support multi-user permissions and multi-region workspaces?</td>
+        <td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">Agency tier supports Workspace Management + unlimited team members</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status none">❌ No Support</span>
+            <span class="cell-note">⚠️ No multi-account support; reviews call this out as a weakness unsuited to agency/multi-brand use cases</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">All plans include unlimited seats, billed per workspace rather than per head — suitable for multi-region teams</span>
+          </td>
+      </tr><tr>
+        <td>Is there a public API/MCP? Which plan tier is required?</td>
+        <td style="text-align:center;">
+            <span class="cell-status partial">⚠️ Partial Support</span>
+            <span class="cell-note">Already has an official MCP server + public API + Claude Skill, but requires Standard tier ($189) or above</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status partial">⚠️ Partial Support</span>
+            <span class="cell-note">API is Enterprise-exclusive; Lite tier has no API</span>
+          </td><td style="text-align:center;">
+            <span class="cell-status full">✅ Full Support</span>
+            <span class="cell-note">API included in all tiers, plus an MCP endpoint connecting to Claude/Cursor/n8n</span>
+          </td>
+      </tr><tr><td colspan="4" style="background:var(--paper-2); font-weight:600; font-family:var(--serif); font-size:13px;">H. Trial Arrangements</td></tr><tr>
+        <td>● How many days is the trial, which plan tier's quota does it provide, and is a credit card required?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td>
+      </tr><tr>
+        <td>After the trial ends, can you get a benchmark report? Is the data exportable?</td>
+        <td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            
+          </td><td style="text-align:center;">
+            <span class="cell-status unset">Unrated</span>
+            <span class="cell-note">Will ask during the call</span>
+          </td>
+      </tr></tbody>
     </table>
   </div>
 
   <div class="gap-list">
-    <h3>⚠ Common Gaps Across All Three Vendors</h3>
+    <h3>⚠ Common Gaps Across All Three</h3>
     <ul>
-      <li><strong>Traffic/Conversion Attribution Loop</strong>: None of the three can directly equate "AI mentions" with "actual website visits/conversions". Otterly and Peec.ai lack native GA4 integration (only support export/Looker Studio). Profound's attribution relies on CDN integration (Akamai/Cloudflare etc.), which may not be available for SMBs or sites with different architecture. Recommendation: Regardless of the final choice, we need to set up custom channel groupings in GA4 to bridge this data gap ourselves.</li>
-      <li><strong>Google AI Overviews Click Traffic</strong>: This traffic is naturally classified as "Organic Search" in GA4. No tool can cleanly isolate it today — this is a GA4 platform limitation, not a vendor-specific issue.</li>
-      <li><strong>Sentiment Analysis Reliability Needs Live Verification</strong>: Otterly officially claims this feature, but third-party reviews note it's absent from the dashboard. Profound and Peec.ai's sentiment analysis are more positively reviewed, but we recommend requiring live demos from all three vendors — do not accept verbal confirmations.</li>
+      <li><strong>Traffic/conversion closed-loop attribution</strong>: none of the three can directly equate "AI mentions" with "actual website visits/conversions." Otterly and Peec.ai lack native deep GA4 integration (only export/Looker Studio support); Profound's attribution depends on CDN integration (Akamai/Cloudflare, etc.), which may not work for SMBs or sites without matching architecture. Recommendation: whichever vendor we choose, we'll need to build our own custom channel grouping in GA4 to fill this gap.</li>
+      <li><strong>Google AI Overviews click traffic</strong>: this is naturally classified as "organic search" in GA4, and no tool can currently split it out cleanly — this is a GA4 architectural limitation, not a vendor shortcoming.</li>
+      <li><strong>Sentiment analysis reliability needs live verification</strong>: Otterly officially claims support but third-party reviews found it missing from the dashboard; Profound's and Peec.ai's sentiment analysis are relatively better regarded in reviews, but we should still require a live demo from all three — no verbal confirmations accepted.</li>
     </ul>
   </div>
 
   <footer>
-    <span>ZERO Markets · GEO Tool Internal Documentation</span>
-    <span id="reportFooterDate">Generated on 7/1/2026</span>
+    <span>ZERO Markets · GEO Tool Internal Document</span>
+    <span id="reportFooterDate">Generated on 7/2/2026, 12:24:25 AM</span>
   </footer>
 </div>
 
 <footer style="margin-top:-20px;">
-  <span>Data sources: Public documentation + vendor communications (Verified June-July 2026)</span>
-  <span>All edits sync to cloud in real-time</span>
+  <span>Data sources: third-party public materials + vendor call notes (verified June–July 2026)</span>
+  <span>All edits on this page are saved in local browser storage</span>
 </footer>
 
-<div id="syncStatus">✅ Synced</div>
-
 <script>
-// ============================================================
-// FIREBASE CONFIGURATION
-// ============================================================
-const firebaseConfig = {
-  apiKey: "AIzaSyBFvGsJ0U-pFYI6THMETm7YfZNWNm8Ue-M",
-  authDomain: "geo-tool-58b2c.firebaseapp.com",
-  databaseURL: "https://geo-tool-58b2c-default-rtdb.firebaseio.com",
-  projectId: "geo-tool-58b2c",
-  storageBucket: "geo-tool-58b2c.firebasestorage.app",
-  messagingSenderId: "590964366005",
-  appId: "1:590964366005:web:0ad359ffa140fbce93bcfc"
-};
+(function(){
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const dbRef = db.ref('geoData');
-
-console.log("✅ Firebase connected!");
-
-// ============================================================
-// APPLICATION STATE
-// ============================================================
-const STORAGE_KEY = "geo_vendor_comparison_v1";
+const STORAGE_KEY = "geo_vendor_comparison_en_v2";
 const VENDORS = ["otterly","profound","peec"];
 const VENDOR_LABELS = {otterly:"Otterly.ai", profound:"Profound", peec:"Peec.ai"};
 
-// ===== ALL TEXTS TRANSLATED TO ENGLISH =====
 const DEFAULT_DATA = {
   categories: [
     {
       id: "cat-engine",
-      title: "A. AI Engine Coverage & Multilingual",
+      title: "A. AI Engine Coverage & Multilingual Support",
       questions: [
         {
-          id:"q1", text:"What AI engines are included in the base plan? Which ones require an add-on?", priority:true,
+          id:"q1", text:"Which AI engines are included in the base plan? Which require add-ons?", priority:true,
           status:{otterly:"partial", profound:"partial", peec:"partial"},
           notes:{
-            otterly:"Base 4 engines (ChatGPT/Perplexity/AIO/Copilot), Gemini and AI Mode add-on $9-149/mo",
-            profound:"Starter only includes ChatGPT, Growth includes Perplexity+AIO, Claude not yet supported",
-            peec:"Base includes 3 engines, additional engines €30-140/mo each"
+            otterly:"Base includes 4 engines (ChatGPT/Perplexity/AIO/Copilot); Gemini and AI Mode require add-ons at $9-149/mo",
+            profound:"Starter includes only ChatGPT; Perplexity+AIO only from Growth tier up; Claude not yet supported",
+            peec:"Base includes 3 engines; additional engines €30-140/mo each"
           }
         },
         {
-          id:"q2", text:"Can you do a live demo of real-time tracking for English queries?", priority:true,
+          id:"q2", text:"Can you demonstrate live tracking of real Vietnamese/Portuguese (Brazil) queries?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"TBD at meeting", profound:"TBD at meeting", peec:"Officially supports any region/language at no extra cost"}
+          notes:{otterly:"Will verify during the call", profound:"Will verify during the call", peec:"Officially claims support for any region/language at no extra cost"}
         },
         {
-          id:"q3", text:"Which regions and languages are supported? Is multi-region/multi-language tracking an additional cost?", priority:false,
+          id:"q3", text:"Is multi-region/multi-language tracking billed extra?", priority:false,
           status:{otterly:"partial", profound:"unset", peec:"full"},
-          notes:{otterly:"50+ countries included, language support TBD", profound:"TBD", peec:"Officially: region/language not charged extra, billed by prompt usage"}
+          notes:{otterly:"50+ countries included in the plan, but language-level coverage needs confirmation", profound:"To be confirmed", peec:"Officially confirmed: region/language not billed extra; billed by prompt volume"}
         }
       ]
     },
     {
       id:"cat-ai-visibility",
-      title:"B. AI-side Visibility Capabilities",
+      title:"B. AI-Side Visibility Capabilities",
       questions: [
         {
-          id:"q4", text:"Can you export the trend of brand mention count and share of voice in AI answers over time?", priority:true,
+          id:"q4", text:"Can you export brand mention counts and share-of-voice trends over a time period in AI responses?", priority:true,
           status:{otterly:"full", profound:"full", peec:"full"},
-          notes:{otterly:"Core feature, CSV export", profound:"Core feature, week-over-week", peec:"Core feature, 7/14/30-day window + custom"}
+          notes:{otterly:"Core feature, CSV export", profound:"Core feature, week-over-week", peec:"Core feature, 7/14/30-day windows + custom"}
         },
         {
-          id:"q5", text:"Can you see which specific domain/article is cited by AI, along with the full context?", priority:true,
+          id:"q5", text:"Can you see exactly which domain/article was cited by AI, along with the full citation context?", priority:true,
           status:{otterly:"full", profound:"full", peec:"full"},
-          notes:{otterly:"Domain ranking analysis", profound:"Conversation Explorer shows full dialogue context", peec:"Sources categorized by type (Competitor/Brand/UGC/Editorial)"}
+          notes:{otterly:"Domain ranking analysis", profound:"Conversation Explorer shows full conversation context", peec:"Sources categorized by type (competitor/brand/UGC/editorial)"}
         },
         {
-          id:"q6", text:"When AI cites content, can you pinpoint which specific page/paragraph was cited or paraphrased?", priority:false,
+          id:"q6", text:"When AI cites our content, can you pinpoint exactly which page/paragraph was cited or paraphrased?", priority:false,
           status:{otterly:"partial", profound:"unset", peec:"unset"},
-          notes:{otterly:"Content Audit shows page scores, but citation precision needs live confirmation", profound:"TBD at meeting", peec:"TBD at meeting"}
+          notes:{otterly:"Content Audit shows page scores, but traceability precision needs live confirmation", profound:"Will clarify the definition during the call", peec:"Will clarify the definition during the call"}
         },
         {
-          id:"q7", text:"Live demo: Check a brand and see if the AI's tone is positive/neutral/negative — can you demonstrate this on the spot?", priority:true,
+          id:"q7", text:"Live-checking an actual brand — can you demonstrate on the spot whether AI's tone is positive/neutral/negative?", priority:true,
           status:{otterly:"none", profound:"full", peec:"full"},
           notes:{
-            otterly:"⚠️ Third-party review (generatemore.ai): Feature is in docs but not found in dashboard — must verify live",
-            profound:"Default feature, not an add-on; shows linguistic patterns and narrative framing, not just labels",
-            peec:"Confirmed core feature, three tiers: Positive/Neutral/Negative"
+            otterly:"⚠️ Third-party review (generatemore.ai) found: official docs claim this feature exists, but it wasn't found in the dashboard — must verify live",
+            profound:"Official default feature, not an add-on; shows specific language patterns and narrative rather than just positive/negative labels",
+            peec:"Officially confirmed as a core feature, with positive/neutral/negative tiers"
           }
         }
       ]
@@ -751,18 +1470,18 @@ const DEFAULT_DATA = {
       title:"C. Traffic Attribution & ROI",
       questions:[
         {
-          id:"q8", text:"Can you link AI mentions with actual website visits and conversion data? Native GA4 integration?", priority:true,
+          id:"q8", text:"Can AI mentions be linked to actual website visits/conversion data? Is there native GA4 integration?", priority:true,
           status:{otterly:"none", profound:"partial", peec:"none"},
           notes:{
             otterly:"No native traffic attribution, only CSV export + Looker Studio connector",
-            profound:"Agent Analytics does attribution, but requires CDN integration (Akamai/CloudFront/Cloudflare) — not available for non-matching architectures",
-            peec:"No native GA4 integration, only Looker Studio (Advanced tier+) + CSV export"
+            profound:"Agent Analytics can do attribution, but depends on CDN integration (Akamai/CloudFront/Cloudflare); may not work for sites without matching architecture",
+            peec:"No native GA4 integration, only Looker Studio (Advanced tier and above) + CSV export"
           }
         },
         {
-          id:"q9", text:"If native attribution isn't possible, do you have a methodology or case studies showing the correlation between mention rate and actual traffic?", priority:true,
+          id:"q9", text:"If native attribution isn't available, is there a methodology/case study showing correlation between mention rate and actual traffic?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"TBD at meeting", profound:"TBD at meeting; Ramp/CRS have public case studies", peec:"TBD at meeting"}
+          notes:{otterly:"Will ask during the call", profound:"Will ask during the call; Ramp/CRS etc. have public case studies for reference", peec:"Will ask during the call"}
         }
       ]
     },
@@ -771,72 +1490,72 @@ const DEFAULT_DATA = {
       title:"D. Data Methodology",
       questions:[
         {
-          id:"q10", text:"Is data sourced via official APIs or simulated web scraping? What is the update frequency?", priority:true,
+          id:"q10", text:"Is data collected via official APIs or simulated web scraping? How often is it updated?", priority:true,
           status:{otterly:"partial", profound:"partial", peec:"partial"},
           notes:{
-            otterly:"Third-party reviews indicate web scraping (not API), daily updates",
-            profound:"Structured prompts run daily, methodology TBD",
-            peec:"Officially: UI scraping emulating real browser sessions (not API sampling), claimed to be closer to real user experience"
+            otterly:"Third-party review indicates it's web scraping rather than an official API; updated daily",
+            profound:"Structured prompts run daily; specific methodology to be confirmed",
+            peec:"Officially confirmed as UI scraping that simulates real browser sessions (not API sampling), claimed to more closely match what real users see"
           }
         },
         {
-          id:"q11", text:"Do results fluctuate with repeated queries? How do you handle this instability?", priority:false,
+          id:"q11", text:"Does querying the same prompt multiple times produce fluctuating results? How is this instability handled?", priority:false,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"TBD at meeting", profound:"TBD at meeting", peec:"TBD at meeting"}
+          notes:{otterly:"Will ask during the call", profound:"Will ask during the call", peec:"Will ask during the call"}
         }
       ]
     },
     {
       id:"cat-competitor",
-      title:"E. Competitor & Alerting",
+      title:"E. Competitors & Alerts",
       questions:[
         {
-          id:"q12", text:"Can you track long-tail keywords and compare our Share of Voice (SOV) against competitors in AI mentions?", priority:false,
+          id:"q12", text:"Can you track long-tail keywords and compare our Share of Voice against competitors?", priority:false,
           status:{otterly:"full", profound:"full", peec:"full"},
-          notes:{otterly:"Standard feature", profound:"Standard feature, can filter by LLM/competitor/prompt", peec:"Add Brands feature, competitor comparison on same prompt"}
+          notes:{otterly:"Standard feature", profound:"Standard feature, filterable by LLM/competitor/prompt", peec:"Add Brands feature, competitor comparison under the same prompt"}
         },
         {
           id:"q13", text:"Can you set up automatic alerts for negative/risk-related keywords?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"TBD at meeting; critical for compliance-sensitive industries (FX)", profound:"TBD at meeting", peec:"TBD at meeting"}
+          notes:{otterly:"Will ask during the call; critical for compliance-sensitive industries (forex)", profound:"Will ask during the call", peec:"Will ask during the call"}
         }
       ]
     },
     {
       id:"cat-content",
-      title:"F. Actionable Optimization Suggestions",
+      title:"F. Actionable Optimization Recommendations",
       questions:[
         {
-          id:"q14", text:"What features are available to help with optimization?", priority:false,
+          id:"q14", text:"After content outlines/optimization suggestions, roughly how long until you see feedback on citation-rate changes?", priority:false,
           status:{otterly:"partial", profound:"unset", peec:"partial"},
           notes:{
-            otterly:"Has Content Audit+GEO Score+Content Brief, but reviews suggest optimization depth is less mature",
-            profound:"Has Agents that auto-generate AEO content and publish to CMS, feedback cycle TBD",
-            peec:"Has Actions feature (beta) that translates data into prioritized GEO to-do list, feedback cycle TBD"
+            otterly:"Has Content Audit + GEO Score + Content Brief, but reviews suggest the optimization guidance isn't as deep as more mature platforms",
+            profound:"Has Agents that auto-generate AEO content and publish to CMS; feedback cycle to be confirmed",
+            peec:"Has Actions feature (beta) that turns data into a prioritized GEO to-do list; feedback cycle to be confirmed"
           }
         }
       ]
     },
     {
       id:"cat-team",
-      title:"G. Team Collaboration & Integrations",
+      title:"G. Team Collaboration & Integration",
       questions:[
         {
           id:"q15", text:"Does it support multi-user permissions and multi-region workspaces?", priority:false,
           status:{otterly:"full", profound:"none", peec:"full"},
           notes:{
-            otterly:"Agency plan supports Workspace Management + unlimited team members",
-            profound:"⚠️ No multi-account support, cited as a weakness for agencies/multi-brand scenarios",
-            peec:"All plans include unlimited seats, billed by workspace rather than per user, suitable for multi-region teams"
+            otterly:"Agency tier supports Workspace Management + unlimited team members",
+            profound:"⚠️ No multi-account support; reviews call this out as a weakness unsuited to agency/multi-brand use cases",
+            peec:"All plans include unlimited seats, billed per workspace rather than per head — suitable for multi-region teams"
           }
         },
         {
-          id:"q16", text:"Is there a public API/MCP? Which tier is required?", priority:false,
+          id:"q16", text:"Is there a public API/MCP? Which plan tier is required?", priority:false,
           status:{otterly:"partial", profound:"partial", peec:"full"},
           notes:{
-            otterly:"Has official MCP server + public API + Claude Skill, but requires Standard tier ($189) or above",
-            profound:"API is Enterprise-only, Lite plan has no API",
-            peec:"All plans include API, plus MCP endpoints, compatible with Claude/Cursor/n8n"
+            otterly:"Already has an official MCP server + public API + Claude Skill, but requires Standard tier ($189) or above",
+            profound:"API is Enterprise-exclusive; Lite tier has no API",
+            peec:"API included in all tiers, plus an MCP endpoint connecting to Claude/Cursor/n8n"
           }
         }
       ]
@@ -846,27 +1565,22 @@ const DEFAULT_DATA = {
       title:"H. Trial Arrangements",
       questions:[
         {
-          id:"q17", text:"How many trial days, and which plan tier's quota is provided? Is a credit card required?", priority:true,
+          id:"q17", text:"How many days is the trial, which plan tier's quota does it provide, and is a credit card required?", priority:true,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"Official 7-day free trial, quota TBD", profound:"No self-serve trial, custom quote process; need to confirm demo account availability", peec:"TBD at meeting"}
+          notes:{otterly:"Officially has a 7-day free trial; specific quota to be confirmed", profound:"No official self-serve trial; mostly a custom-quote process — need to confirm whether a demo account is provided", peec:"Will ask during the call"}
         },
         {
-          id:"q18", text:"Can we get a benchmark report at the end of the trial? Can data be exported?", priority:false,
+          id:"q18", text:"After the trial ends, can you get a benchmark report? Is the data exportable?", priority:false,
           status:{otterly:"unset", profound:"unset", peec:"unset"},
-          notes:{otterly:"TBD at meeting", profound:"TBD at meeting", peec:"TBD at meeting"}
+          notes:{otterly:"Will ask during the call", profound:"Will ask during the call", peec:"Will ask during the call"}
         }
       ]
     }
   ]
 };
 
-let state = {};
-let isSyncing = false;
-let isCloudUpdate = false;
+let state = loadState();
 
-// ============================================================
-// DATA OPERATIONS
-// ============================================================
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -874,98 +1588,31 @@ function loadState(){
   }catch(e){}
   return JSON.parse(JSON.stringify(DEFAULT_DATA));
 }
-
-function saveStateToLocal(){
+function saveState(){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function saveStateToCloud(){
-  if (isSyncing) return;
-  isSyncing = true;
-  showSyncStatus('saving', 'Saving...');
-  dbRef.set(state)
-    .then(() => {
-      showSyncStatus('synced', '✅ Synced');
-      isSyncing = false;
-    })
-    .catch((err) => {
-      console.error('Sync error:', err);
-      showSyncStatus('error', '⚠️ Sync failed');
-      isSyncing = false;
-    });
-}
-
-function showSyncStatus(type, msg) {
-  const el = document.getElementById('syncStatus');
-  el.textContent = msg;
-  el.className = type;
-  el.style.opacity = 1;
-  clearTimeout(el._timer);
-  el._timer = setTimeout(() => { el.style.opacity = 0; }, 3000);
-}
-
-function updateConnectionStatus(online) {
-  const dot = document.getElementById('statusDot');
-  const text = document.getElementById('statusText');
-  if (online) {
-    dot.className = 'online-badge online';
-    text.textContent = 'Online';
-  } else {
-    dot.className = 'online-badge offline';
-    text.textContent = 'Offline';
-  }
-}
-
-// ============================================================
-// RENDER FUNCTIONS
-// ============================================================
 const STATUS_CYCLE = ["unset","full","partial","none"];
-const STATUS_LABEL = {unset:"Unrated", full:"✅ Fully supported", partial:"⚠️ Partially supported", none:"❌ Not supported"};
+const STATUS_LABEL = {unset:"Unrated", full:"✅ Full Support", partial:"⚠️ Partial Support", none:"❌ No Support"};
 
 let currentFilter = "all";
 let idCounter = Date.now();
-
-function escapeHtml(str){ if(!str) return ""; return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-
-function findQuestion(qId){ for(const cat of state.categories){ const q = cat.questions.find(x=>x.id===qId); if(q) return {q, cat}; } return null; }
-
-function renderQuestionRow(q){
-  return `
-  <tr data-q-id="${q.id}">
-    <td data-label="Question">
-      <div class="q-text">
-        <div class="q-priority ${q.priority?'on':''}" data-priority-toggle="${q.id}" title="Mark as priority question"></div>
-        <div class="q-editable" contenteditable="true" data-edit-q="${q.id}">${escapeHtml(q.text)}</div>
-      </div>
-    </td>
-    ${VENDORS.map(v=>`
-      <td data-label="${VENDOR_LABELS[v]}">
-        <div class="status-wrap">
-          <select class="status-select" data-v="${q.status[v]||'unset'}" data-status-select="${q.id}" data-vendor="${v}">
-            ${STATUS_CYCLE.map(s=>`<option value="${s}" ${((q.status[v]||'unset')===s)?'selected':''}>${STATUS_LABEL[s]}</option>`).join("")}
-          </select>
-          <textarea class="note-input" rows="1" placeholder="Note…" data-note="${q.id}" data-vendor="${v}">${escapeHtml(q.notes[v]||"")}</textarea>
-        </div>
-      </td>
-    `).join("")}
-    <td data-label=""><button class="row-del" data-del-q="${q.id}" title="Delete this question">✕</button></td>
-  </tr>`;
-}
 
 function renderCategories(){
   const root = document.getElementById("categoriesRoot");
   root.innerHTML = "";
   state.categories.forEach((cat, catIdx)=>{
+    const catEl = document.createElement("div");
+    catEl.className = "category";
+    catEl.dataset.catId = cat.id;
+
     const visibleQs = cat.questions.filter(q=>{
       if(currentFilter==="priority") return q.priority;
       if(currentFilter==="unrated") return VENDORS.some(v=>q.status[v]==="unset"||!q.status[v]);
       return true;
     });
 
-    const el = document.createElement("div");
-    el.className = "category";
-    el.dataset.catId = cat.id;
-    el.innerHTML = `
+    catEl.innerHTML = `
       <div class="category-head">
         <div class="title"><span class="cat-index">${catIdx+1}</span> ${escapeHtml(cat.title)}</div>
         <div class="chevron">▾</div>
@@ -986,25 +1633,59 @@ function renderCategories(){
           </tbody>
         </table>
         <div class="add-q-row">
-          <input type="text" placeholder="+ Add a new question under '${escapeHtml(cat.title)}'…" data-add-q="${cat.id}">
+          <input type="text" placeholder="+ Add a new question under "${escapeHtml(cat.title)}"…" data-add-q="${cat.id}">
           <button class="btn small" data-add-q-btn="${cat.id}">Add</button>
         </div>
       </div>
     `;
-    root.appendChild(el);
+    root.appendChild(catEl);
   });
 
-  attachEvents();
+  attachCategoryEvents();
+  attachRowEvents();
   renderScoreBar();
 }
 
-function attachEvents(){
-  document.querySelectorAll(".category-head").forEach(h=>{
-    h.onclick = ()=>{
-      h.parentElement.classList.toggle("collapsed");
-    };
-  });
+function renderQuestionRow(q){
+  return `
+  <tr data-q-id="${q.id}">
+    <td data-label="Question">
+      <div class="q-text">
+        <div class="q-priority ${q.priority?'on':''}" data-priority-toggle="${q.id}" title="Mark as priority question"></div>
+        <div class="q-editable" contenteditable="true" data-edit-q="${q.id}">${escapeHtml(q.text)}</div>
+      </div>
+    </td>
+    ${VENDORS.map(v=>`
+      <td data-label="${VENDOR_LABELS[v]}">
+        <div class="status-wrap">
+          <select class="status-select" data-v="${q.status[v]||'unset'}" data-status-select="${q.id}" data-vendor="${v}">
+            ${STATUS_CYCLE.map(s=>`<option value="${s}" ${((q.status[v]||'unset')===s)?'selected':''}>${STATUS_LABEL[s]}</option>`).join("")}
+          </select>
+          <textarea class="note-input" rows="1" placeholder="Notes…" data-note="${q.id}" data-vendor="${v}">${escapeHtml(q.notes[v]||"")}</textarea>
+        </div>
+      </td>
+    `).join("")}
+    <td data-label=""><button class="row-del" data-del-q="${q.id}" title="Delete this question">✕</button></td>
+  </tr>`;
+}
 
+function escapeHtml(str){
+  if(!str) return "";
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function findQuestion(qId){
+  for(const cat of state.categories){
+    const q = cat.questions.find(x=>x.id===qId);
+    if(q) return {q, cat};
+  }
+  return null;
+}
+
+function attachCategoryEvents(){
+  document.querySelectorAll(".category-head").forEach(h=>{
+    h.onclick = ()=>{ h.parentElement.classList.toggle("collapsed"); };
+  });
   document.querySelectorAll("[data-add-q-btn]").forEach(btn=>{
     btn.onclick = ()=>{
       const catId = btn.dataset.addQBtn;
@@ -1019,12 +1700,10 @@ function attachEvents(){
         status:{otterly:"unset",profound:"unset",peec:"unset"},
         notes:{otterly:"",profound:"",peec:""}
       });
-      saveStateToLocal();
-      saveStateToCloud();
+      saveState();
       renderCategories();
     };
   });
-
   document.querySelectorAll("[data-add-q]").forEach(inp=>{
     inp.addEventListener("keydown", e=>{
       if(e.key==="Enter"){
@@ -1033,73 +1712,45 @@ function attachEvents(){
       }
     });
   });
+}
 
+function attachRowEvents(){
   document.querySelectorAll("[data-priority-toggle]").forEach(el=>{
     el.onclick = ()=>{
       const found = findQuestion(el.dataset.priorityToggle);
-      if(found){
-        found.q.priority = !found.q.priority;
-        saveStateToLocal();
-        saveStateToCloud();
-        renderCategories();
-      }
+      if(found){ found.q.priority = !found.q.priority; saveState(); renderCategories(); }
     };
   });
-
   document.querySelectorAll("[data-edit-q]").forEach(el=>{
     el.addEventListener("blur", ()=>{
       const found = findQuestion(el.dataset.editQ);
-      if(found){
-        found.q.text = el.textContent.trim();
-        saveStateToLocal();
-        saveStateToCloud();
-        renderReport();
-      }
+      if(found){ found.q.text = el.textContent.trim(); saveState(); renderReport(); }
     });
-    el.addEventListener("keydown", e=>{
-      if(e.key==="Enter"){ e.preventDefault(); el.blur(); }
-    });
+    el.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); el.blur(); } });
   });
-
   document.querySelectorAll("[data-status-select]").forEach(el=>{
     el.addEventListener("change", ()=>{
       const found = findQuestion(el.dataset.statusSelect);
       if(found){
         found.q.status[el.dataset.vendor] = el.value;
         el.dataset.v = el.value;
-        saveStateToLocal();
-        saveStateToCloud();
-        renderScoreBar();
-        renderReport();
+        saveState(); renderScoreBar(); renderReport();
       }
     });
   });
-
   document.querySelectorAll("[data-note]").forEach(el=>{
     el.addEventListener("input", ()=>{
       const found = findQuestion(el.dataset.note);
-      if(found){
-        found.q.notes[el.dataset.vendor] = el.value;
-      }
+      if(found){ found.q.notes[el.dataset.vendor] = el.value; }
     });
-    el.addEventListener("blur", ()=>{
-      saveStateToLocal();
-      saveStateToCloud();
-      renderReport();
-    });
+    el.addEventListener("blur", ()=>{ saveState(); renderReport(); });
   });
-
   document.querySelectorAll("[data-del-q]").forEach(el=>{
     el.onclick = ()=>{
-      if(!confirm("Are you sure you want to delete this question?")) return;
+      if(!confirm("Delete this question? This cannot be undone.")) return;
       const qId = el.dataset.delQ;
-      state.categories.forEach(cat=>{
-        cat.questions = cat.questions.filter(q=>q.id!==qId);
-      });
-      saveStateToLocal();
-      saveStateToCloud();
-      renderCategories();
-      renderReport();
+      state.categories.forEach(cat=>{ cat.questions = cat.questions.filter(q=>q.id!==qId); });
+      saveState(); renderCategories(); renderReport();
     };
   });
 }
@@ -1116,8 +1767,7 @@ function computeScore(vendor){
       else unset++;
     });
   });
-  const scored = total - unset;
-  const pct = scored>0 ? Math.round(((full*1 + partial*0.5)/total)*100) : 0;
+  const pct = total>0 ? Math.round(((full*1 + partial*0.5)/total)*100) : 0;
   return {full, partial, none, unset, total, pct};
 }
 
@@ -1131,11 +1781,11 @@ function renderScoreBar(){
       <div class="num">${s.pct}<span style="font-size:14px;color:#8a8474;">%</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${s.pct}%; background:${s.pct>=60?'var(--full)':s.pct>=35?'var(--partial)':'var(--none)'}"></div></div>
       <div style="font-family:var(--mono);font-size:10px;color:#8a8474;margin-top:6px;">
-        ✅${s.full} ⚠️${s.partial} ❌${s.none} · Unrated${s.unset}
+        ✅${s.full} ⚠️${s.partial} ❌${s.none} ·Unrated${s.unset}
       </div>
     </div>`;
   }).join("");
-  bar.innerHTML = `<div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Overall score calculated from rated questions: ✅=1 pt, ⚠️=0.5 pts, ❌=0 pts; unrated questions are excluded from total</p></div>${cells}`;
+  bar.innerHTML = `<div class="vendor-card head" style="align-items:center;"><p style="font-family:var(--mono);font-size:11px;">Score is calculated from all questions: ✅=1pt ⚠️=0.5pt ❌=0pt, unrated counts as 0</p></div>${cells}`;
 }
 
 function renderReport(){
@@ -1144,9 +1794,9 @@ function renderReport(){
   const ranked = [...VENDORS].sort((a,b)=>scores[b].pct - scores[a].pct);
 
   const fitText = {
-    otterly:"Entry-level testing / teams with limited budget",
-    profound:"Enterprise / needs deep attribution and compliance certifications",
-    peec:"Mid-tier multi-region teams / needs MCP and multi-workspace"
+    otterly:"Entry-level trial / budget-constrained teams",
+    profound:"Enterprise / needing deep attribution and compliance certification",
+    peec:"Mid-tier multi-region teams / needing MCP and multiple workspaces"
   };
   const highlights = {};
   VENDORS.forEach(v=>{
@@ -1192,133 +1842,63 @@ function renderReport(){
     });
   });
   tbody.innerHTML = rows;
+
   document.getElementById("reportFooterDate").textContent = "Generated on " + new Date().toLocaleString("en-US");
 }
 
-// ============================================================
-// FIREBASE REAL-TIME LISTENER
-// ============================================================
-function loadFromCloud() {
-  dbRef.on('value', (snapshot) => {
-    const cloudData = snapshot.val();
-    if (cloudData) {
-      const currentStr = JSON.stringify(state);
-      const cloudStr = JSON.stringify(cloudData);
-      if (currentStr !== cloudStr) {
-        isCloudUpdate = true;
-        state = cloudData;
-        saveStateToLocal();
-        renderCategories();
-        renderReport();
-        showSyncStatus('synced', '✅ Synced from cloud');
-        setTimeout(() => { isCloudUpdate = false; }, 500);
-      }
-    }
-    updateConnectionStatus(true);
-  }, (error) => {
-    console.error('Firebase connection error:', error);
-    updateConnectionStatus(false);
-    showSyncStatus('error', '⚠️ Connection lost');
-  });
-}
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("view-"+btn.dataset.tab).classList.add("active");
+    if(btn.dataset.tab==="report") renderReport();
+  };
+});
 
-// ============================================================
-// INITIALIZATION
-// ============================================================
-function init() {
-  state = loadState();
-
-  dbRef.once('value', (snapshot) => {
-    const cloudData = snapshot.val();
-    if (cloudData) {
-      state = cloudData;
-      saveStateToLocal();
-    } else {
-      saveStateToCloud();
-    }
-    renderCategories();
-    renderReport();
-    updateConnectionStatus(true);
-    showSyncStatus('synced', '✅ Ready');
-  }, (error) => {
-    console.error('Error loading from cloud:', error);
-    updateConnectionStatus(false);
-    renderCategories();
-    renderReport();
-  });
-
-  loadFromCloud();
-
-  // Tabs
-  document.querySelectorAll(".tab-btn").forEach(btn=>{
-    btn.onclick = ()=>{
-      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-      document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById("view-"+btn.dataset.tab).classList.add("active");
-      if(btn.dataset.tab==="report") renderReport();
-    };
-  });
-
-  // Filters
-  document.querySelectorAll(".filter-chip").forEach(chip=>{
-    chip.onclick = ()=>{
-      document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
-      chip.classList.add("active");
-      currentFilter = chip.dataset.filter;
-      renderCategories();
-    };
-  });
-
-  // Add category
-  document.getElementById("addCatBtn").onclick = ()=>{
-    const input = document.getElementById("newCatInput");
-    const title = input.value.trim();
-    if(!title) return;
-    state.categories.push({
-      id:"cat"+(idCounter++),
-      title,
-      questions:[]
-    });
-    input.value="";
-    saveStateToLocal();
-    saveStateToCloud();
+document.querySelectorAll(".filter-chip").forEach(chip=>{
+  chip.onclick = ()=>{
+    document.querySelectorAll(".filter-chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");
+    currentFilter = chip.dataset.filter;
     renderCategories();
   };
-  document.getElementById("newCatInput").addEventListener("keydown", e=>{
-    if(e.key==="Enter"){ e.preventDefault(); document.getElementById("addCatBtn").click(); }
-  });
+});
 
-  // Export
-  document.getElementById("exportBtn").onclick = ()=>{
-    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "geo_vendor_comparison.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+document.getElementById("addCatBtn").onclick = ()=>{
+  const input = document.getElementById("newCatInput");
+  const title = input.value.trim();
+  if(!title) return;
+  state.categories.push({ id:"cat"+(idCounter++), title, questions:[] });
+  input.value="";
+  saveState();
+  renderCategories();
+};
+document.getElementById("newCatInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ e.preventDefault(); document.getElementById("addCatBtn").click(); }
+});
 
-  // Reset
-  document.getElementById("resetBtn").onclick = ()=>{
-    if(!confirm("Are you sure you want to reset to the default list? This will overwrite all your changes.")) return;
-    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-    saveStateToLocal();
-    saveStateToCloud();
-    renderCategories();
-    renderReport();
-    showSyncStatus('synced', '✅ Reset complete');
-  };
+document.getElementById("exportBtn").onclick = ()=>{
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "geo_vendor_comparison.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+document.getElementById("resetBtn").onclick = ()=>{
+  if(!confirm("Reset to the default list? This will overwrite all your changes.")) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  saveState();
+  renderCategories();
+  renderReport();
+};
 
-  // Force Sync
-  document.getElementById("forceSyncBtn").onclick = ()=>{
-    saveStateToCloud();
-    showSyncStatus('saving', '🔄 Syncing...');
-  };
-}
+renderCategories();
+renderReport();
 
-init();
+})();
 </script>
-</body>
-</html>
+
+</body></html>
