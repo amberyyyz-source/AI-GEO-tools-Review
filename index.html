@@ -538,16 +538,13 @@
     <div>
       <div class="kicker">Vendor Evaluation · Internal</div>
       <h1>AI GEO 跟踪工具评估对比</h1>
-      <div class="subtitle">Otterly.ai · Profound · Peec.ai — ZERO Markets GEO 平台选型调研</div>
+      <div class="subtitle">Otterly.ai · Profound · Peec.ai — ZERO Markets GEO 工具调研</div>
     </div>
-    <div class="meta-block">
-      更新于 2026-07-01<br>
-      调研人：Marketing / GEO 项目组
-    </div>
+  
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-tab="compare">对比工作表</button>
-    <button class="tab-btn" data-tab="report">给领导的汇报视图</button>
+    <button class="tab-btn" data-tab="report">汇总视图</button>
   </div>
 </div>
 
@@ -598,8 +595,8 @@
 <!-- ============ REPORT VIEW ============ -->
 <div class="view" id="view-report">
   <div class="report-hero">
-    <h2>汇报摘要：三家 AI GEO 工具选型对比</h2>
-    <p>基于三场供应商沟通会 + 官方资料交叉核实，围绕引擎覆盖、情感分析、流量归因、数据方法论等关键维度进行评估。以下结论会随「对比工作表」的修改自动更新。</p>
+    <h2>汇报摘要：三家 AI GEO 工具对比</h2>
+    <p>基于三次平台沟通 + 官方资料交叉核实 + 实际试用，围绕引擎覆盖、情感分析、流量归因、数据方法论等关键维度进行评估。以下结论会随「对比工作表」的修改自动更新。</p>
   </div>
 
   <div class="recommend-grid" id="recommendGrid"></div>
@@ -619,7 +616,7 @@
   </div>
 
   <div class="gap-list">
-    <h3>⚠ 三家共同存在的缺口（需向领导说明，非某一家的短板）</h3>
+    <h3>⚠ 三家共同存在的缺口</h3>
     <ul>
       <li><strong>流量/转化闭环归因</strong>：三家都不能把"AI提及"直接等同于"网站真实访问/转化"。Otterly 和 Peec.ai 无原生 GA4 深度打通（仅支持导出/Looker Studio）；Profound 的归因依赖 CDN 集成（Akamai/Cloudflare等），中小企业或非对应架构的网站可能无法使用。建议：无论选哪家，都需要我们自己在 GA4 做自定义渠道分组来补足这条数据链。</li>
       <li><strong>Google AI Overviews 的点击流量</strong>：在 GA4 中天然被归类为"自然搜索"，目前没有任何工具能干净拆分出来，这是 GA4 底层设计问题，不是供应商的缺陷。</li>
@@ -628,7 +625,7 @@
   </div>
 
   <footer>
-    <span>ZERO Markets · GEO 工具选型内部文档</span>
+    <span>ZERO Markets · GEO 工具内部文档</span>
     <span id="reportFooterDate"></span>
   </footer>
 </div>
